@@ -1,6 +1,6 @@
-#Module to simulate realistic mouse movements in python
-#Objective of this will be to take in coordinates x,y and move to them in a realistic manner
-#we will be passing in an x,y that is already 'random' so this script only has to move to the exact x,y
+# Module to simulate realistic mouse movements in python
+# Objective of this will be to take in coordinates x,y and move to them in a realistic manner
+# we will be passing in an x,y that is already 'random' so this script only has to move to the exact x,y
 
 import pyautogui
 import random

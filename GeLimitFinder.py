@@ -1,4 +1,4 @@
-#Takes in an item and looks up the corresponding items ge limit and returns it
+# Takes in an item and looks up the corresponding items ge limit and returns it
 
 import re
 import urllib.request
@@ -8,7 +8,7 @@ wiki_source = str(wiki_source.read())
 
 def find_ge_limit(item_name, wiki_source):
 	item_name = item_name.replace(' ','_')
-	#wiki_source = '<td><a href="/wiki/Exchange:Impling_jar" title="Exchange:Impling jar">Impling jar</a></td><td>1,000</td></tr><tr><td><a href="/wiki/Exchange:Incandescent_energy" title="Exchange:Incandescent energy">Incandescent energy</a></td><td>25,000</td></tr><tr><td><a href="/wiki/Exchange:Incomplete_hydrix" title="Exchange:Incomplete hydrix">Incomplete hydrix</a></td><td>100</td></tr><tr><td><a href="/wiki/Exchange:Incomplete_pizza" title="Exchange:Incomplete pizza">Incomplete pizza</a></td><td>1,000</td></tr>'
+	# wiki_source = '<td><a href="/wiki/Exchange:Impling_jar" title="Exchange:Impling jar">Impling jar</a></td><td>1,000</td></tr><tr><td><a href="/wiki/Exchange:Incandescent_energy" title="Exchange:Incandescent energy">Incandescent energy</a></td><td>25,000</td></tr><tr><td><a href="/wiki/Exchange:Incomplete_hydrix" title="Exchange:Incomplete hydrix">Incomplete hydrix</a></td><td>100</td></tr><tr><td><a href="/wiki/Exchange:Incomplete_pizza" title="Exchange:Incomplete pizza">Incomplete pizza</a></td><td>1,000</td></tr>'
 	search_word = 'Exchange:'+item_name
 	print(search_word)
 	split_text = re.split(r'{0}'.format(search_word), wiki_source, maxsplit=1, flags=0)
