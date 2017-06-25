@@ -2,12 +2,10 @@
 
 import pyautogui
 import time
-import sys
 
 # below are custom modules
-sys.path.insert(0, 'C:/Users/luke_/Desktop/Python stuff/GitHub/RunescapeBots/Custom Modules')
-import realmouse
-import pointfrombox
+from Custom_Modules import realmouse
+from Custom_Modules import pointfrombox
 
 def main():
 	# creates an empty list of runescape windows and then proceeds to populate it using the runescape_instance class
