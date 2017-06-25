@@ -5,7 +5,7 @@ import time
 import sys
 
 # below are custom modules
-sys.path.insert(0, 'C:/Users/luke_/Desktop/Python stuff/GitHub/RunescapeBots/Custom Modules')
+sys.path.insert(0, 'C:/Users/luke_/Desktop/Python stuff/GitHub/RunescapeBots/Custom Modules') # add your own path here to the modules
 import realmouse
 import pointfrombox
 
