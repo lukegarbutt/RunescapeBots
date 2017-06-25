@@ -1,5 +1,7 @@
 # Main script that will merch items in the GE
 
+import pyautogui
+
 def detect_runescape_windows():
 	pass # this function will detect how many runescape windows are present and where they are
 
@@ -11,3 +13,10 @@ def detect_ge_slots_and_member_status():
 	pass # this will take in the location of the windows and scan each one to see whether or not it is a members account
 	# which can be done by checking if there are slots that are unavailable to be used (for example have no buy bag in them)
 	# then for each screen we want to detect how many available slots we have and the location of each
+
+def main():
+	list_of_runescape_windows = list(pyautogui.locateAllOnScreen('tools/screenshots/collect_all_buttons.png'))
+	print(len(list_of_runescape_windows))
+
+if __name__ == '__main__':
+	main()
