@@ -19,12 +19,11 @@ def move_mouse_to(x, y):
 	pyautogui.moveTo(x, y, duration_of_move, pyautogui.easeInOutQuad)
 
 
-
 def distance(x1,y1,x2,y2):
-    # calculate distance of 2 coordinate points
-    # First point
-    # distance is equal to the square root of (x20x1)^2 + (y2-y1)^2
-    distance = (
+    """returns distance (floating point)  of 2 coordinate points"""
+    # distance is equal to the square root of (x2-x1)^2 + (y2-y1)^2
+    distance = math.sqrt((((x2 - x1) ** 2) + ((y2 - y1) ** 2)))
+    return distance
 
 def sMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, targetArea, extended, double):
 	"""Mouse movement based on distance to determine speed. Default slowed
