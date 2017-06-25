@@ -28,7 +28,8 @@ def distance(x1, y1, x2, y2):
     return distance
 
 
-def sMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, targetArea, extended, double):
+# Had to comment below out until it's working
+'''def sMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, targetArea, extended, double):
 	"""Mouse movement based on distance to determine speed. Default slowed
 	speed at 20% from destination, if 'double' is set to true then slowed
 	speed also starts at origin and ends 80% to destination."""
@@ -117,3 +118,4 @@ def sMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, targetArea, extended
 		move_mouse_to(round(xe), round(ye))
 
 	mouseSpeed = MSP
+    TDist = distance(round(xs), round(ys), round(xe), round(ye));'''
