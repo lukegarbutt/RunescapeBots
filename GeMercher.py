@@ -107,14 +107,14 @@ def initialise_ge_slots(top_left_corner, bottom_right_corner):
 def members_status_check(top_left_corner, bottom_right_corner):
 	width = bottom_right_corner[0]-top_left_corner[0]
 	height = bottom_right_corner[1]-top_left_corner[1]
-	if len(list(pyautogui.locateAllOnScreen('tools/screenshots/non_mems_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))) != 0:
+	if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/non_mems_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))) != 0:
 		return(False)
 	else:
 		return(True)
 
 def detect_runescape_windows(): # this function will detect how many runescape windows are present and where they are
 	list_of_runescape_windows = []
-	for i in pyautogui.locateAllOnScreen('tools/screenshots/collect_all_buttons.png'):
+	for i in pyautogui.locateAllOnScreen('Tools/screenshots/collect_all_buttons.png'):
 		list_of_runescape_windows.append(runescape_instance((i[0]+i[2], i[1]+i[3])))
 	return(list_of_runescape_windows)
 
@@ -125,7 +125,7 @@ def move_and_resize_runescape_windows():
 def count_ge_slots(top_left_corner, bottom_right_corner): # this checks how many slots a particular window has available
 	width = bottom_right_corner[0]-top_left_corner[0]
 	height = bottom_right_corner[1]-top_left_corner[1]
-	list_of_ge_slots = list(pyautogui.locateAllOnScreen('tools/screenshots/available_ge_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
+	list_of_ge_slots = list(pyautogui.locateAllOnScreen('Tools/screenshots/available_ge_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
 	return(list_of_ge_slots)
 	
 
