@@ -12,28 +12,52 @@ def main():
 	list_of_runescape_windows = detect_runescape_windows()
 	for i in list_of_runescape_windows:
 		print(i)
-		print(i.list_of_ge_slots)
-		print(len(i.list_of_ge_slots))
-		print(i.member_status)
+		for j in i.list_of_ge_slots:
+			print(j.top_left_corner, j.bottom_right_corner)
+
+class ge_slot():
+	def __init__(self, position):
+		self.top_left_corner = position[0]
+		self.bottom_right_corner = position[1]
+		self.buy_or_sell = None
+		self.item = None
 
 class runescape_instance():
 	def __init__(self, position):
 		self.bottom_right_corner = position
 		self.top_left_corner = (position[0] - 750, position[1] - 450)
 		self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
-		self.list_of_ge_slots = count_ge_slots(self.top_left_corner, self.bottom_right_corner)
+		self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner) # this returns a list of ge_slot objects
 		self.money = 20000000 # given a default of 20m for now, we could change this later maybe
 		self.profit = 0
 		self.last_action_time = time.time()
+		examine_money(position) # examines money to make the above line accurate
+		self.items_to_merch = items_to_merch(self.member_status)
+		self.list_of_items_on_cooldown = []
 
-		point = pointfrombox.random_point((189, 109), (138, 94)) # this whole block just examines the amount of money
-		money_pouch = (position[0] - point[0], position[1] - point[1]) # that the account has just for auto log out purposes
-		realmouse.move_mouse_to(money_pouch[0], money_pouch[1]) # so that it has a recording of the last time an action
-		pyautogui.click(button='right') # was taken and can keep track of this value in future to stop logouts occuring
-		point = pointfrombox.random_point((74, -24), (-75, -35))
-		examine = (money_pouch[0] - point[0], money_pouch[1] - point[1])
-		realmouse.move_mouse_to(examine[0], examine[1])
-		pyautogui.click()
+def items_to_merch(member_status):
+	if member_status:
+		list_of_items = ['Coal', 'Air rune', 'Fire rune', 'Rune bar', 'Airut bones', 'Onyx bolts (e)', 'Grenwall spikes', 'Runite ore', 'Araxyte arrows', 'Infernal ashes', 'Dragon bones']
+		return(list_of_items) # we are a member so initialise a members item list
+	else:
+		list_of_items = ['Coal', 'Air rune', 'Fire rune', 'Rune bar', 'Runite ore', 'Water rune']
+		return(list_of_items) # we are f2p so initialise a f2p item list
+
+def examine_money(position):
+	point = pointfrombox.random_point((189, 109), (138, 94)) # this whole block just examines the amount of money
+	money_pouch = (position[0] - point[0], position[1] - point[1]) # that the account has just for auto log out purposes
+	realmouse.move_mouse_to(money_pouch[0], money_pouch[1]) # so that it has a recording of the last time an action
+	pyautogui.click(button='right') # was taken and can keep track of this value in future to stop logouts occuring
+	point = pointfrombox.random_point((74, -24), (-75, -35))
+	examine = (money_pouch[0] - point[0], money_pouch[1] - point[1])
+	realmouse.move_mouse_to(examine[0], examine[1])
+	pyautogui.click()
+
+def initialise_ge_slots(top_left_corner, bottom_right_corner):
+	ge_slots = []
+	for i in count_ge_slots(top_left_corner, bottom_right_corner):
+		ge_slots.append(ge_slot(((i[0],i[1]),(i[0]+i[2],i[1]+i[3]))))
+	return(ge_slots)
 
 def members_status_check(top_left_corner, bottom_right_corner):
 	width = bottom_right_corner[0]-top_left_corner[0]

@@ -10,7 +10,6 @@ def pull_item_limit_webpage():
 
 def parse_webpage(item_name, wiki_source):
 	item_name = item_name.replace(' ','_') # strips out the spaces in our items and replaces them with '_' so that they are in the format we are looking for in the source code
-	# wiki_source = '<td><a href="/wiki/Exchange:Impling_jar" title="Exchange:Impling jar">Impling jar</a></td><td>1,000</td></tr><tr><td><a href="/wiki/Exchange:Incandescent_energy" title="Exchange:Incandescent energy">Incandescent energy</a></td><td>25,000</td></tr><tr><td><a href="/wiki/Exchange:Incomplete_hydrix" title="Exchange:Incomplete hydrix">Incomplete hydrix</a></td><td>100</td></tr><tr><td><a href="/wiki/Exchange:Incomplete_pizza" title="Exchange:Incomplete pizza">Incomplete pizza</a></td><td>1,000</td></tr>'
 	search_word = 'Exchange:'+item_name+'"' # creates a variable that contains the term we will search the source code for to locate the item
 	split_text = re.split(r'{0}'.format(re.escape(search_word)), wiki_source, maxsplit=1, flags=0) # splits the source code into 2 at the position of the word we are looking for, this means that the ge limit of the item is the first number in the second element of the split_text variable
 	result = re.search(r'[0-9,]+', split_text[1]) # tries to locate the first number in the second entry of our split_text list. This number is in the format (any number of digits) + (,) + (any number of digits). This allows us to find numbers such as 25,000
