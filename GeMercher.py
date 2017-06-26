@@ -6,14 +6,48 @@ import time
 # below are custom modules
 from Custom_Modules import realmouse
 from Custom_Modules import pointfrombox
+from Custom_Modules import gelimitfinder
 
 def main():
-	# creates an empty list of runescape windows and then proceeds to populate it using the runescape_instance class
-	list_of_runescape_windows = detect_runescape_windows()
-	for i in list_of_runescape_windows:
-		print(i)
-		for j in i.list_of_ge_slots:
-			print(j.top_left_corner, j.bottom_right_corner)
+	# maybe we should add a pickle load up here so that we can load in a previous state if we have one?
+	# this would mean we can save instances and only have to initialise one if we don't have a save file to load
+	# we should also have a variable that tells us whether or not we loaded from a saved instance
+	# this is important because if we did we don't want to be scoring items immediately (this would create articifically low scores)
+	# ask me for more info on this
+	list_of_runescape_windows = detect_runescape_windows() # returns a list of object of runescape windows and all their features
+	if len(list_of_runescape_windows) > 1:
+		print('We have detected {} windows'.format(len(list_of_runescape_windows)))
+	elif len(list_of_runescape_windows) == 1:
+		print('We have detected {} window'.format(len(list_of_runescape_windows)))
+	elif len(list_of_runescape_windows) == 0:
+		print("Failed, we couldn't detect a runescape window, script will now abort")
+		quit()
+
+	# for each window we need to check if there are any completed offers and if so handle them
+	# if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
+	# a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our 
+	# price is right). We would also place the item in the cooldown list as a tuple. this tuple would contain
+	# the item name, the time it was bought, the quantity that were bought
+	# if the item was sold then we would score the item based on the profit it made us and the time it took to buy and sell
+	# then we would simply mark the slot as empty by setting the self.buy_or_sell variable to None and then move on
+	# this None would be caught in the next sections of code and a buy order would automatically be placed
+	# if there are no completed orders then we need to check for empty ge slots and fill them with orders
+	# all orders should be unique, ie not buying coal on 2 windows at once, this would harm profit since they would be
+	# competing with eachother. Instead one window should buy it, then once it starts selling the next window can start buying
+	for i in list_of_runescape_windows: # this little block is purely to get an output and test the code so far
+		for j in i.items_to_merch: # it should output the items that each instance of runescape can merch, along with limits
+			print(j.item_name, j.limit)
+
+	#print(list_of_runescape_windows[0].items_to_merch[0].item_name, list_of_runescape_windows[0].items_to_merch[0].limit)
+
+class item():
+	def __init__(self, name, limit):
+		self.item_name = name
+		self.limit = limit
+		#self.image_in_ge_search = # the image of the item as it appears when searched for in the ge
+		self.price_instant_bought_at = None
+		self.price_instant_sold_at = None
+
 
 class ge_slot():
 	def __init__(self, position):
@@ -21,6 +55,7 @@ class ge_slot():
 		self.bottom_right_corner = position[1]
 		self.buy_or_sell = None
 		self.item = None
+
 
 class runescape_instance():
 	def __init__(self, position):
@@ -35,13 +70,22 @@ class runescape_instance():
 		self.items_to_merch = items_to_merch(self.member_status)
 		self.list_of_items_on_cooldown = []
 
+
 def items_to_merch(member_status):
 	if member_status:
-		list_of_items = ['Coal', 'Air rune', 'Fire rune', 'Rune bar', 'Airut bones', 'Onyx bolts (e)', 'Grenwall spikes', 'Runite ore', 'Araxyte arrows', 'Infernal ashes', 'Dragon bones']
-		return(list_of_items) # we are a member so initialise a members item list
+		items_to_merch = []
+		list_of_items = ['Coal', 'Air rune', 'Fire rune', 'Rune bar', 'Airut bones', 'Onyx bolts (e)', 'Grenwall spikes', 'Runite ore', 'Araxyte arrow', 'Infernal ashes', 'Dragon bones']
+		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
+		for i in range(len(list_of_items)):
+			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
+		return(items_to_merch) # we are a member so initialise a members item list
 	else:
+		items_to_merch = []
 		list_of_items = ['Coal', 'Air rune', 'Fire rune', 'Rune bar', 'Runite ore', 'Water rune']
-		return(list_of_items) # we are f2p so initialise a f2p item list
+		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
+		for i in range(len(list_of_items)):
+			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
+		return(items_to_merch) # we are f2p so initialise a f2p item list
 
 def examine_money(position):
 	point = pointfrombox.random_point((189, 109), (138, 94)) # this whole block just examines the amount of money

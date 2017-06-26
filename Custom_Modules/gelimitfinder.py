@@ -12,6 +12,7 @@ def parse_webpage(item_name, wiki_source):
 	item_name = item_name.replace(' ','_') # strips out the spaces in our items and replaces them with '_' so that they are in the format we are looking for in the source code
 	search_word = 'Exchange:'+item_name+'"' # creates a variable that contains the term we will search the source code for to locate the item
 	split_text = re.split(r'{0}'.format(re.escape(search_word)), wiki_source, maxsplit=1, flags=0) # splits the source code into 2 at the position of the word we are looking for, this means that the ge limit of the item is the first number in the second element of the split_text variable
+	#print(search_word) # uncomment this if you wanna see the item it is searching for (useful for debugging errors searching for items)
 	result = re.search(r'[0-9,]+', split_text[1]) # tries to locate the first number in the second entry of our split_text list. This number is in the format (any number of digits) + (,) + (any number of digits). This allows us to find numbers such as 25,000
 	limit = result.group(0) # this returns the correct values from our regex 'result' for more info try calling print(result) on the line above
 	return(limit)
