@@ -22,7 +22,8 @@ def main():
 	elif len(list_of_runescape_windows) == 0:
 		print("Failed, we couldn't detect a runescape window, script will now abort")
 		quit()
-
+	while(True):
+		break
 	# for each window we need to check if there are any completed offers and if so handle them
 	# if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
 	# a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our 
