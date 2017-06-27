@@ -131,9 +131,12 @@ class runescape_instance():
 
 
 def find_up_to_date_sell_price(runescape_window, ge_slot):
-    # click correct buy bag
-
-    # buy item for lots of money
+	# click correct buy bag
+	buy_bag_loc = pyautogui.locateOnScreen('Tools/screenshots/buy_bag.png', region=(ge_slot.top_left_corner[0], ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[0]-ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[1]-ge_slot.top_left_corner[1]))
+	point_to_click = pointfrombox.random_point((buy_bag_loc[0], buy_bag_loc[1]), (buy_bag_loc[0]+buy_bag_loc[2], buy_bag_loc[1]+buy_bag_loc[3]))
+	realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
+	pyautogui.click()
+	# buy item for lots of money
 
     # collect item
 
