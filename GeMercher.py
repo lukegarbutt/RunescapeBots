@@ -318,7 +318,7 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
 	# buy item for lots of money
 	move_mouse_to_image_within_region('Tools/screenshots/search_box.png', runescape_window)
 	pyautogui.click()
-	time.sleep(1+random.random())
+	time.sleep(3+random.random())
 	random_typer(str(ge_slot.item.item_name))
 	wait_for(ge_slot.item.image_in_ge_search, runescape_window)
 	move_mouse_to_image_within_region(ge_slot.item.image_in_ge_search, runescape_window)
