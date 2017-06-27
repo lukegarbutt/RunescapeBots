@@ -497,7 +497,6 @@ def items_to_merch(member_status):
 		for i in range(len(list_of_items)):
 			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
 		# we are a member so initialise a members item list
-		return(items_to_merch)
 	else:
 		items_to_merch = []
 		# below is a list of f2p items to merch
@@ -506,7 +505,8 @@ def items_to_merch(member_status):
 		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
 		for i in range(len(list_of_items)):
 			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
-		return(items_to_merch)  # we are f2p so initialise a f2p item list
+		# we are f2p so initialise a f2p item list
+	return(items_to_merch)
 
 def examine_money(position):
 	# this whole block just examines the amount of money
