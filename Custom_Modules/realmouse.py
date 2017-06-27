@@ -34,7 +34,7 @@ def distance(xs, ys, xe, ye):
     return distance
 
 
-def humanWindMouse(xe, ye, gravity, wind, minWait, maxWait, MaxStep):
+def humanWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, MaxStep):
     """ Moves the mouse like a human"""
     global mouseSpeed
 
@@ -47,12 +47,10 @@ def humanWindMouse(xe, ye, gravity, wind, minWait, maxWait, MaxStep):
     sqrt3 = math.sqrt(3)
     sqrt5 = math.sqrt(5)
 
-    xs, ys = pyautogui.position()
     total_distance = distance(round(xs), round(ys), round(xe), round(ye))
     t = time.time() + 10000
 
     while math.hypot(xs - xe, ys - ye) > 1:
-        xs, ys = pyautogui.position()
         print('Hypotnus: ',math.hypot(xs - xe, ys - ye))
         if time.time() > t:
             print('time is greater, breaking')
@@ -109,8 +107,8 @@ def humanWindMouse(xe, ye, gravity, wind, minWait, maxWait, MaxStep):
 
         if lastX != round(xs) or lastY != round(ys):
             print("IN")
-            move(round(xs), round(ys), 1)
-            #pyautogui.moveTo(xe,ye)
+            #move(round(xs), round(ys), 1)
+            pyautogui.moveTo(xe,ye)
 
         W = (random.randrange(round(100/MSP)) * 6)
 
@@ -124,27 +122,36 @@ def humanWindMouse(xe, ye, gravity, wind, minWait, maxWait, MaxStep):
     if round(xe) != round(xs) or round(ye) != round(ys):
         print("OFF")
         print(xe,xs, ye, ys)
-        #pyautogui.moveTo(x,y)
+        pyautogui.moveTo(x,y)
         #move_mouse_to(round(xe), round(ye))
-        move(round(xs), round(ys), 1)
+        #move(round(xs), round(ys), 1)
 
     mouseSpeed = MSP
 
 
 def move(xe, ye, button):
     global mouseSpeed
+
     if button != (1 or 2):
         return
 
+    ms = mouseSpeed
     randSpeed = (random.randrange(mouseSpeed) / 2.0 + mouseSpeed) / 10.0
-    humanWindMouse(xe, ye, 1, 1, (10.0/randSpeed), (15.0/randSpeed), (10.0*randSpeed))
+    # get Cur mouse position
+    xs,ys = pyautogui.position()
 
-#for _ in range(1):
-#    x = random.randint(0,1920)
-#    y = random.randint(0,1080)
-#
-#    print('NEW coord:{},{}\n'.format(x,y))
-#    time.sleep(1)
-#    move(x,y, 1)
-#    #move_mouse_to(x,y)
+    humanWindMouse(xs, ys, xe, ye, 1, 5, 10.0/randSpeed, 15.0/randSpeed, 10.0*randSpeed)
+    mouseSpeed = ms
+    # click here.  Add Code
 
+
+
+if __name__ == "__main__":
+    pass
+    #for _ in range(1):
+    #    x = random.randint(0,1920)
+    #    y = random.randint(0,1080)
+    #
+    #    print('NEW coord:{},{}\n'.format(x,y))
+    #    time.sleep(1)
+    #    move(x,y, 1)
