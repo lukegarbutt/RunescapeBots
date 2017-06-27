@@ -166,7 +166,7 @@ def items_to_merch(member_status):
 
 def examine_money(position):
     # this whole block just examines the amount of money
-    point = pointfrombox.random_point((189, 109), (138, 94))
+    point = pointfrombox.random_point((138, 94), (189, 109))
     # that the account has just for auto log out purposes
     money_pouch = (position[0] - point[0], position[1] - point[1])
     # so that it has a recording of the last time an action
@@ -174,7 +174,7 @@ def examine_money(position):
     # was taken and can keep track of this value in future to stop logouts
     # occuring
     pyautogui.click(button='right')
-    point = pointfrombox.random_point((74, -24), (-75, -35))
+    point = pointfrombox.random_point((-75, -35), (74, -24))
     examine = (money_pouch[0] - point[0], money_pouch[1] - point[1])
     realmouse.move_mouse_to(examine[0], examine[1])
     pyautogui.click()
