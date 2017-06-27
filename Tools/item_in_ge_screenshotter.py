@@ -23,12 +23,12 @@ def main():
 			print('file exists', file_name_1)
 			continue
 		x = len(list_of_items[i])
-		pyautogui.typewrite(list_of_items[i], random.random()/20)
+		pyautogui.typewrite(list_of_items[i], random.random()/10)
 		time.sleep(2)
 		pyautogui.screenshot(file_name_2, region=(box_1_coords))
 		for x in range(x):
 			pyautogui.press('backspace')
-			time.sleep(random.random()/20)
+			time.sleep(random.random()/10)
 		time.sleep(1)
 
 
