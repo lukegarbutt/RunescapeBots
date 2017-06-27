@@ -24,11 +24,11 @@ def main():
     elif len(list_of_runescape_windows) == 0:
         print("Failed, we couldn't detect a runescape window, script will now abort")
         quit()
-    logout_prevention_random_number = random.randint(10, 20)
+    logout_prevention_random_number = random.randint(150, 250)
     while(True):
         for runescape_window in list_of_runescape_windows:
             if time.time() - runescape_window.last_action_time > logout_prevention_random_number: # prevent auto logout
-                logout_prevention_random_number = random.randint(10, 20)
+                logout_prevention_random_number = random.randint(150, 250)
                 runescape_window.set_time_of_last_action()
                 prevent_logout(runescape_window.top_left_corner, runescape_window.bottom_right_corner)
 
