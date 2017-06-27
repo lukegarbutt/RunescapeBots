@@ -2,44 +2,52 @@
 
 import pyautogui
 import time
+import pickle
+import os
 
 # below are custom modules
 from Custom_Modules import realmouse
 from Custom_Modules import pointfrombox
 from Custom_Modules import gelimitfinder
 
-def main():
-	# maybe we should add a pickle load up here so that we can load in a previous state if we have one?
-	# this would mean we can save instances and only have to initialise one if we don't have a save file to load
-	# we should also have a variable that tells us whether or not we loaded from a saved instance
-	# this is important because if we did we don't want to be scoring items immediately (this would create articifically low scores)
-	# ask me for more info on this
-	list_of_runescape_windows = detect_runescape_windows() # returns a list of object of runescape windows and all their features
-	if len(list_of_runescape_windows) > 1:
-		print('We have detected {} windows'.format(len(list_of_runescape_windows)))
-	elif len(list_of_runescape_windows) == 1:
-		print('We have detected {} window'.format(len(list_of_runescape_windows)))
-	elif len(list_of_runescape_windows) == 0:
-		print("Failed, we couldn't detect a runescape window, script will now abort")
-		quit()
-	while(True):
-		break
-	# for each window we need to check if there are any completed offers and if so handle them
-	# if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
-	# a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our 
-	# price is right). We would also place the item in the cooldown list as a tuple. this tuple would contain
-	# the item name, the time it was bought, the quantity that were bought
-	# if the item was sold then we would score the item based on the profit it made us and the time it took to buy and sell
-	# then we would simply mark the slot as empty by setting the self.buy_or_sell variable to None and then move on
-	# this None would be caught in the next sections of code and a buy order would automatically be placed
-	# if there are no completed orders then we need to check for empty ge slots and fill them with orders
-	# all orders should be unique, ie not buying coal on 2 windows at once, this would harm profit since they would be
-	# competing with eachother. Instead one window should buy it, then once it starts selling the next window can start buying
-	for i in list_of_runescape_windows: # this little block is purely to get an output and test the code so far
-		for j in i.items_to_merch: # it should output the items that each instance of runescape can merch, along with limits
-			print(j.item_name, j.limit)
 
-	#print(list_of_runescape_windows[0].items_to_merch[0].item_name, list_of_runescape_windows[0].items_to_merch[0].limit)
+loaded_pickled_object = None
+load_state = False
+
+def main():
+    load_previous_state()
+    return
+    # maybe we should add a pickle load up here so that we can load in a previous state if we have one?
+    # this would mean we can save instances and only have to initialise one if we don't have a save file to load
+    # we should also have a variable that tells us whether or not we loaded from a saved instance
+    # this is important because if we did we don't want to be scoring items immediately (this would create articifically low scores)
+    # ask me for more info on this
+    list_of_runescape_windows = detect_runescape_windows() # returns a list of object of runescape windows and all their features
+    if len(list_of_runescape_windows) > 1:
+        print('We have detected {} windows'.format(len(list_of_runescape_windows)))
+    elif len(list_of_runescape_windows) == 1:
+        print('We have detected {} window'.format(len(list_of_runescape_windows)))
+    elif len(list_of_runescape_windows) == 0:
+        print("Failed, we couldn't detect a runescape window, script will now abort")
+        quit()
+    while(True):
+        break
+    # for each window we need to check if there are any completed offers and if so handle them
+    # if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
+    # a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our 
+    # price is right). We would also place the item in the cooldown list as a tuple. this tuple would contain
+    # the item name, the time it was bought, the quantity that were bought
+    # if the item was sold then we would score the item based on the profit it made us and the time it took to buy and sell
+    # then we would simply mark the slot as empty by setting the self.buy_or_sell variable to None and then move on
+    # this None would be caught in the next sections of code and a buy order would automatically be placed
+    # if there are no completed orders then we need to check for empty ge slots and fill them with orders
+    # all orders should be unique, ie not buying coal on 2 windows at once, this would harm profit since they would be
+    # competing with eachother. Instead one window should buy it, then once it starts selling the next window can start buying
+    for i in list_of_runescape_windows: # this little block is purely to get an output and test the code so far
+        for j in i.items_to_merch: # it should output the items that each instance of runescape can merch, along with limits
+            print(j.item_name, j.limit)
+
+    #print(list_of_runescape_windows[0].items_to_merch[0].item_name, list_of_runescape_windows[0].items_to_merch[0].limit)
 
 class item():
 	def __init__(self, name, limit):
@@ -127,9 +135,60 @@ def count_ge_slots(top_left_corner, bottom_right_corner): # this checks how many
 	height = bottom_right_corner[1]-top_left_corner[1]
 	list_of_ge_slots = list(pyautogui.locateAllOnScreen('Tools/screenshots/available_ge_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
 	return(list_of_ge_slots)
+def load_pickle(pickle_file):
+    """Returns binary object from file path passed
+        and sets global variable loaded_pickled_object
+        equal to returned object"""
+    global loaded_pickled_object, load_state
+
+    with open(pickle_file, 'rb') as  f:
+        try:
+            loaded_pickled_object = pickle.load(f)
+            print("{} LOADED!".format(pickle_file))
+            load_state = True
+            return loaded_pickled_object
+        except:
+            print("{} is N0T a a pickle object!".format(pickle_file))
+            load_state = False
+
+
+def save_pickle(var_to_save):
+    save_name = 'save1.pickle'
+    with open('Saves/' + save_name, 'wb') as  f:
+        try:
+            print(var_to_save)
+            pickle.dump(var_to_save, f)
+            print("{} Saved!".format(save_name))
+            load_state = True
+        except Exception as e:
+            print(e)
+            print("{} is N0T a a pickle object!".format(save_name))
+            load_state = False
+
+def load_previous_state():
+    """Looks up a pickled file, if found loads it"""
+
+    global loaded_pickled_object, load_state
+
+    save_name = 'save1.pickle'
+    save_dir_name = "Saves/"
+    saved_file = save_dir_name + save_name
+
+    # looks up file names in siaves folder 
+    for (dirpath, dirnames, filenames) in os.walk(save_dir_name):
+        break
+    # loads pickled file if exists
+    if save_name in filenames:
+        load_pickle(saved_file)
+
+    #ask user to create save file
+    else:
+        print("Save file: '{}' NOT FOUND!\n".format(saved_file))
 	
 
 
-
 if __name__ == '__main__':
-	main()
+    main()
+
+
+
