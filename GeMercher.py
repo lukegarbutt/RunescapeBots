@@ -33,12 +33,7 @@ def main():
     elif len(list_of_runescape_windows) == 0:
         print("Failed, we couldn't detect a runescape window, script will now abort")
         quit()
-<< << << < HEAD
-    while(True):
-        break
-    # for each window we need to check if there are any completed offers and
-    # if so handle them
-== == == =
+
     logout_prevention_random_number = random.randint(150, 250)
     while(True):
         for runescape_window in list_of_runescape_windows:
@@ -52,7 +47,6 @@ def main():
         # and if so handle them
 
 
->>>>>> > 0476149f87716402ca675dd9a25aae1ce591ef80
 # if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
 # a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our
 # price is right). We would also place the item in the cooldown list as a tuple. this tuple would contain
@@ -64,14 +58,12 @@ def main():
 # all orders should be unique, ie not buying coal on 2 windows at once, this would harm profit since they would be
 # competing with eachother. Instead one window should buy it, then once it
 # starts selling the next window can start buying
-<< << << < HEAD
+
     for i in list_of_runescape_windows:  # this little block is purely to get an output and test the code so far
         for j in i.items_to_merch:  # it should output the items that each instance of runescape can merch, along with limits
             print(j.item_name, j.limit)
 
     #print(list_of_runescape_windows[0].items_to_merch[0].item_name, list_of_runescape_windows[0].items_to_merch[0].limit)
-== == == =
->>>>>> > 0476149f87716402ca675dd9a25aae1ce591ef80
 
 
 class item():
@@ -220,7 +212,6 @@ def move_and_resize_runescape_windows():
 
 # this checks how many slots a particular window has available
 def count_ge_slots(top_left_corner, bottom_right_corner):
-<< << << < HEAD
     width = bottom_right_corner[0] - top_left_corner[0]
     height = bottom_right_corner[1] - top_left_corner[1]
     list_of_ge_slots = list(pyautogui.locateAllOnScreen(
@@ -279,20 +270,11 @@ def load_previous_state():
     else:
         print("Save file: '{}' NOT FOUND!\n".format(saved_file))
 
-== == == =
     width = bottom_right_corner[0] - top_left_corner[0]
     height = bottom_right_corner[1] - top_left_corner[1]
     list_of_ge_slots = list(pyautogui.locateAllOnScreen(
         'Tools/screenshots/available_ge_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
     return(list_of_ge_slots)
 
->>>>>> > 0476149f87716402ca675dd9a25aae1ce591ef80
-
-
 if __name__ == '__main__':
     main()
-<< << << < HEAD
-
-
-== == == =
->>>>>> > 0476149f87716402ca675dd9a25aae1ce591ef80
