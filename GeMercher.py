@@ -1,5 +1,14 @@
 # Main script that will merch items in the GE
 
+# TO DO LIST:
+# check the items on cooldown lists so items can be taken off cooldown after the appropriate 4 hours
+# track money more accurately, certain steps aren't tracked yet
+# track profit, per window and total profit from all windows
+# improve pytesser (THIS IS VITAL AND NEEDS DOING ASAP)
+# add some method of scoring items and saving these scores (probably as part of the item class)
+# things that need saving so far: (list_of_runescape_windows, list_of_items_in_use)
+# probably more things I've missed, I'll add more as I come across them
+
 import pyautogui
 import time
 import pickle
@@ -318,7 +327,7 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
 	# buy item for lots of money
 	move_mouse_to_image_within_region('Tools/screenshots/search_box.png', runescape_window)
 	pyautogui.click()
-	time.sleep(3+random.random())
+	time.sleep(1+random.random())
 	random_typer(str(ge_slot.item.item_name))
 	wait_for(ge_slot.item.image_in_ge_search, runescape_window)
 	move_mouse_to_image_within_region(ge_slot.item.image_in_ge_search, runescape_window)
