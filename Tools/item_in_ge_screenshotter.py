@@ -12,12 +12,10 @@ def main():
 	box_5_coords = (215,905,150,40)
 	box_6_coords = (387,905,150,40)
 	time.sleep(3)
-	list_of_items = ['incandescent energy', 'coal', 'fire rune', 'air rune', 'feather', 'broad arrowheads', 'maple logs', 'water rune', 'earth rune', 'nature rune', 'magic logs', 'yew logs', 'brilliant energy', 'blood rune', 'mind rune', 'cannonball', 'lustrous energy', 'luminous energy', 'dragon bones', 'body rune', 'mahogany plank', 'death rune', 'royal bolts', 'polypore spore', 'ascension bolts', 'fishing bait', 'rune arrow', 'chaos rune', 'bowstring', 'ascension shard', 'radiant energy', 'ganodermic flake', 'adamantite ore', 'gold ore', 'flax', 'vial of water', 'vibrant energy', 'araxyte arrow', 'mahogany logs', 'raw shark', 'shark', 'soul rune', 'rocktail', 'adamant bar', 'rune bar', 'gold bar', 'elder energy', 'runite ore', 'law rune', 'raw lobster', 'raw rocktail', 'astral rune', 'cosmic rune', 'black dragon leather', 'onyx bolts (e)', 'steel bar', 'magic shieldbow', 'iron ore', 'black dragonhide', 'grenwall spikes', 'mithril bar', 'willow logs', 'mud rune', 'lobster', 'swamp tar', 'mithril ore', 'adamant arrow', 'snape grass', 'soft clay', 'magic notepaper', 'steel arrow', 'magic shieldbow (u)', 'harralander tar', 'mithril arrow', 'teak plank', 'thread', 'oak plank', 'dark arrow', 'grimy dwarf weed', 'dragon arrowheads', 'grimy lantadyme', 'airut bones', 'gleaming energy', 'infernal ashes', 'frost dragon bones', 'living minerals', 'chitin scraps', 'green dragon leather', 'red chinchompa', 'rune arrowheads', 'eye of newt', 'clean lantadyme', 'rune essence', 'raw tuna']
+	list_of_items = ['Incandescent energy', 'Coal', 'Fire rune', 'Air rune', 'Feather', 'Broad arrowheads', 'Maple logs', 'Water rune', 'Earth rune', 'Nature rune', 'Magic logs', 'Yew logs', 'Brilliant energy', 'Blood rune', 'Mind rune', 'Cannonball', 'Lustrous energy', 'Luminous energy', 'Dragon bones', 'Body rune', 'Mahogany plank', 'Death rune', 'Royal bolts', 'Polypore spore', 'Ascension bolts', 'Fishing bait', 'Rune arrow', 'Chaos rune', 'Bowstring', 'Ascension shard', 'Radiant energy', 'Ganodermic flake', 'Adamantite ore', 'Gold ore', 'Flax', 'Vial of water', 'Vibrant energy', 'Araxyte arrow', 'Mahogany logs', 'Raw shark', 'Shark', 'Soul rune', 'Rocktail', 'Adamant bar', 'Rune bar', 'Gold bar', 'Elder energy', 'Runite ore', 'Law rune', 'Raw lobster', 'Raw rocktail', 'Astral rune', 'Cosmic rune', 'Black dragon leather', 'Onyx bolts (e)', 'Steel bar', 'Magic shieldbow', 'Iron ore', 'Black dragonhide', 'Grenwall spikes', 'Mithril bar', 'Willow logs', 'Mud rune', 'Lobster', 'Swamp tar', 'Mithril ore', 'Adamant arrow', 'Snape grass', 'Soft clay', 'Magic notepaper', 'Steel arrow', 'Magic shieldbow (u)', 'Harralander tar', 'Mithril arrow', 'Teak plank', 'Thread', 'Oak plank', 'Dark arrow', 'Grimy dwarf weed', 'Dragon arrowheads', 'Grimy lantadyme', 'Airut bones', 'Gleaming energy', 'Infernal ashes', 'Frost dragon bones', 'Living minerals', 'Chitin scraps', 'Green dragon leather', 'Red chinchompa', 'Rune arrowheads', 'Eye of newt', 'Clean lantadyme', 'Rune essence', 'Raw tuna']
 	list_of_file_names = []
 	for i in range(len(list_of_items)):
 		list_of_file_names.append(list_of_items[i].replace(' ', '_')+'.png')
-	print(list_of_items)
-	print(list_of_file_names)
 	for i in range(len(list_of_items)):
 		file_name_1 = 'screenshots/items/'+list_of_file_names[i]
 		file_name_2 = 'screenshots/temp_items/'+list_of_file_names[i]
@@ -31,7 +29,7 @@ def main():
 		for x in range(x):
 			pyautogui.press('backspace')
 			time.sleep(random.random()/20)
-		#time.sleep(10)
+		time.sleep(1)
 
 
 
