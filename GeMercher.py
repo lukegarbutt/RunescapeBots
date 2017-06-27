@@ -105,8 +105,6 @@ def main():
 									if item.number_available_to_buy > 0.2*item.limit:
 										list_of_items_available.append(item)
 							if len(list_of_items_available) > 0:
-								for i in list_of_items_available:
-									print(i.item_name)
 								ge_slot.set_item_in_ge_slot(random.choice(list_of_items_available))
 								list_of_items_in_use.append(ge_slot.item.item_name)
 								find_up_to_date_sell_price(runescape_window, ge_slot)
@@ -145,10 +143,10 @@ class item():
 	def set_time_of_last_pc(self):
 			self.time_of_last_pc = time.time()
 
-	def set_price_insant_bought_at(self, price):
+	def set_price_instant_bought_at(self, price):
 			self.price_instant_bought_at = price
 
-	def set_price_insant_sold_at(self, price):
+	def set_price_instant_sold_at(self, price):
 			self.price_instant_sold_at = price
 
 	def set_quantity_to_buy(self, number):
@@ -303,7 +301,7 @@ def find_up_to_date_buy_price(runescape_window, ge_slot):
 	# check price
 	sell_price = check_price(runescape_window)
 	# update price
-	ge_slot.item.set_price_insant_sold_at(sell_price)
+	ge_slot.item.set_price_instant_sold_at(sell_price)
 	# click grand exchange window
 	move_mouse_to_box('Tools/screenshots/grand_exchange_button.png',
 						runescape_window.top_left_corner, runescape_window.bottom_right_corner)
@@ -343,7 +341,7 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
 	# check price
 	buy_price = check_price(runescape_window)
 	# update price
-	ge_slot.item.set_price_insant_bought_at(buy_price)
+	ge_slot.item.set_price_instant_bought_at(buy_price)
 	# click grand exchange window
 	move_mouse_to_box('Tools/screenshots/grand_exchange_button.png',
 						runescape_window.top_left_corner, runescape_window.bottom_right_corner)
