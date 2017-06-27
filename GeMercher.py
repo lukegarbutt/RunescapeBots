@@ -4,6 +4,9 @@ import pyautogui
 import time
 import pickle
 import os
+import pytesseract
+import cv2
+import numpy
 
 # below are custom modules
 from Custom_Modules import realmouse
@@ -24,11 +27,9 @@ def main():
 	# returns a list of object of runescape windows and all their features
 	list_of_runescape_windows = detect_runescape_windows()
 	if len(list_of_runescape_windows) > 1:
-		print('We have detected {} windows'.format(
-			len(list_of_runescape_windows)))
+		print('We have detected {} windows'.format(len(list_of_runescape_windows)))
 	elif len(list_of_runescape_windows) == 1:
-		print('We have detected {} window'.format(
-			len(list_of_runescape_windows)))
+		print('We have detected {} window'.format(len(list_of_runescape_windows)))
 	elif len(list_of_runescape_windows) == 0:
 		print("Failed, we couldn't detect a runescape window, script will now abort")
 		quit()
@@ -38,8 +39,7 @@ def main():
 			if time.time() - runescape_window.last_action_time > logout_prevention_random_number:  # prevent auto logout
 				logout_prevention_random_number = random.randint(150, 250)
 				runescape_window.set_time_of_last_action()
-				prevent_logout(runescape_window.top_left_corner,
-							   runescape_window.bottom_right_corner)
+				prevent_logout(runescape_window.top_left_corner,runescape_window.bottom_right_corner)
 		# for each window we need to check if there are any completed offers
 		# and if so handle them
 		for runescape_window in list_of_runescape_windows:
@@ -59,10 +59,10 @@ def main():
 								# grab a new price to sell items at since it
 								# has been a long time since we collected this
 								# info
-								find_up_to_date_sell_price(
-									runescape_window, ge_slot)
+								find_up_to_date_sell_price(runescape_window, ge_slot)
 
 						elif ge_slot.buy_or_sell == sell:
+							pass
 							# do sell stuff
 
 							# if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
@@ -96,6 +96,9 @@ class item():
 		def set_time_of_last_pc(self):
 			self.time_of_last_pc = time.time()
 
+		def set_price_insant_bought_at(self, price):
+			self..price_instant_bought_at = price
+
 
 class ge_slot():
 
@@ -111,10 +114,8 @@ class runescape_instance():
 	def __init__(self, position):
 		self.bottom_right_corner = position
 		self.top_left_corner = (position[0] - 750, position[1] - 450)
-		self.member_status = members_status_check(
-			self.top_left_corner, self.bottom_right_corner)
-		self.list_of_ge_slots = initialise_ge_slots(
-			self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
+		self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
+		self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
 		self.money = 20000000  # given a default of 20m for now, we could change this later maybe
 		self.profit = 0
 		self.last_action_time = time.time()
@@ -123,8 +124,7 @@ class runescape_instance():
 		self.items_to_merch = items_to_merch(self.member_status)
 		self.list_of_items_on_cooldown = []
 		# will be true if there is an empty slot in this window, else false
-		self.contains_empty_ge_slot = empty_ge_slot_check(
-			self.list_of_ge_slots)
+		self.contains_empty_ge_slot = empty_ge_slot_check(self.list_of_ge_slots)
 
 	def set_time_of_last_action(self):
 		self.last_action_time = time.time()
@@ -158,12 +158,81 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
 	pyautogui.click()
 	wait_for('Tools/screenshots/grand_exchange_button.png', runescape_window)
 	# check price
-	#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ up to here, time to use tesser
+	buy_price = check_price(runescape_window)
 	# update price
-
+	set_price_insant_bought_at(buy_price)
 	# click grand exchange window
+	move_mouse_to_box('Tools/screenshots/grand_exchange_button.png',
+						runescape_window.top_left_corner, runescape_window.bottom_right_corner)
+	pyautogui.click()
+	wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
 
-def move_mouse_to_image_within_region(image, region):
+def check_price(runescape_window):
+	loc_of_price = (runescape_window.bottom_right_corner[0] - 144, runescape_window.bottom_right_corner[1] - 364,
+		runescape_window.bottom_right_corner[0] - 22, runescape_window.bottom_right_corner[1] - 337)
+	buy_price = tesser_image(screengrab_as_numpy_array((1179, 427, 1306, 455)))
+	return(price)
+
+def screengrab_as_numpy_array(location):
+	im = numpy.array(PIL.ImageGrab.grab(bbox=(location[0],location[1],location[2],location[3])))
+	im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+	#cv2.imshow('im', im)
+	#cv2.waitKey(0)
+	return(im)
+
+def tesser_image(image):
+	image = cv2.resize(image, (0,0), fx=2, fy=2)
+	ret,image = cv2.threshold(image,127,255,cv2.THRESH_BINARY)
+	#cv2.imshow('im', image)
+	#cv2.waitKey(0)
+	image = PIL.Image.fromarray(image, 'RGB')
+	txt = pytesseract.image_to_string(image)
+	txt = txt.replace(",", "")
+	txt = txt.replace(" ", "")
+	if len(txt) == 0:
+		txt = pytesseract.image_to_string(image, config='-psm 10')
+	try:
+		txt = int(txt)
+	except:
+		txt_list = list(txt)
+		for i in range(len(txt)):
+			if txt_list[i] == 'B':
+				txt_list[i] = '8'
+			elif txt_list[i] == 'l':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'L':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'i':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'I':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'o':
+				txt_list[i] = '0'
+			elif txt_list[i] == 'O':
+				txt_list[i] = '0'
+			elif txt_list[i] == 'z':
+				txt_list[i] = '2'
+			elif txt_list[i] == 'Z':
+				txt_list[i] = '2'
+			elif txt_list[i] == 'Q':
+				txt_list[i] = '0'
+			elif txt_list[i] == 's':
+				txt_list[i] = '5'
+			elif txt_list[i] == 'S':
+				txt_list[i] = '5'
+			elif txt_list[i] == '.':
+				txt_list[i] = '9'
+			elif txt_list[i] == ':':
+				txt_list[i] = '8'
+
+
+		if len(txt_list)>1:
+			txt = int(''.join(txt_list))
+		else:
+			txt = int(txt_list[0])
+	return(txt)
+
+def move_mouse_to_image_within_region(image, region): # region takes in an object
 	image_loc = pyautogui.locateOnScreen(image, region=(region.top_left_corner[0], region.top_left_corner[1], region.bottom_right_corner[0]-region.top_left_corner[0], region.bottom_right_corner[1]-region.top_left_corner[1]))
 	while(image_loc == None):
 		image_loc = pyautogui.locateOnScreen(image, region=(region.top_left_corner[0], region.top_left_corner[1], region.bottom_right_corner[0]-region.top_left_corner[0], region.bottom_right_corner[1]-region.top_left_corner[1]))
@@ -171,8 +240,7 @@ def move_mouse_to_image_within_region(image, region):
 	realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
 
 def collect_items_from_ge_slot(ge_slot, runescape_window):
-	point_to_click = pointfrombox.random_point(
-		ge_slot.top_left_corner, ge_slot.bottom_right_corner)
+	point_to_click = pointfrombox.random_point(ge_slot.top_left_corner, ge_slot.bottom_right_corner)
 	realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
 	pyautogui.click()
 	wait_for('Tools/screenshots/completed_offer_page.png', runescape_window)
@@ -180,11 +248,9 @@ def collect_items_from_ge_slot(ge_slot, runescape_window):
 															   1] - 166), (runescape_window.bottom_right_corner[0] - 273, runescape_window.bottom_right_corner[1] - 138))
 	point_of_item_collection_box_2 = pointfrombox.random_point((runescape_window.bottom_right_corner[0] - 254, runescape_window.bottom_right_corner[
 															   1] - 166), (runescape_window.bottom_right_corner[0] - 222, runescape_window.bottom_right_corner[1] - 138))
-	realmouse.move_mouse_to(point_of_item_collection_box_2[
-							0], point_of_item_collection_box_2[1])
+	realmouse.move_mouse_to(point_of_item_collection_box_2[0], point_of_item_collection_box_2[1])
 	pyautogui.click()
-	realmouse.move_mouse_to(point_of_item_collection_box_1[
-							0], point_of_item_collection_box_1[1])
+	realmouse.move_mouse_to(point_of_item_collection_box_1[0], point_of_item_collection_box_1[1])
 	pyautogui.click()
 	wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
 
@@ -208,14 +274,11 @@ def empty_ge_slot_check(list_of_ge_slots):
 
 def prevent_logout(top_left_corner, bottom_right_corner):
 	seed = random.random()
-	print(seed)
 	if seed > 0.5:  # opens up the sale history tab for 5 seconds then returns to ge tab
-		move_mouse_to_box('Tools/screenshots/sale_history_button.png',
-						  top_left_corner, bottom_right_corner)
+		move_mouse_to_box('Tools/screenshots/sale_history_button.png', top_left_corner, bottom_right_corner)
 		pyautogui.click()
-		time.sleep(5)
-		move_mouse_to_box('Tools/screenshots/grand_exchange_button.png',
-						  top_left_corner, bottom_right_corner)
+		time.sleep(9*random.random()+1)
+		move_mouse_to_box('Tools/screenshots/grand_exchange_button.png', top_left_corner, bottom_right_corner)
 		pyautogui.click()
 	else:  # examines the money pouch
 		examine_money(bottom_right_corner)
@@ -227,8 +290,7 @@ def move_mouse_to_box(image_of_box, top_left_corner, bottom_right_corner):
 											1], bottom_right_corner[0] - top_left_corner[0], bottom_right_corner[1] - top_left_corner[1]))
 	random_x = random.randint(0, box_to_click[2])
 	random_y = random.randint(0, box_to_click[3])
-	realmouse.move_mouse_to(
-		box_to_click[0] + random_x, box_to_click[1] + random_y)
+	realmouse.move_mouse_to(box_to_click[0] + random_x, box_to_click[1] + random_y)
 
 
 def check_if_image_exists(item_name):
@@ -248,8 +310,7 @@ def items_to_merch(member_status):
 						 'Onyx bolts (e)', 'Grenwall spikes', 'Runite ore', 'Araxyte arrow', 'Infernal ashes', 'Dragon bones']
 		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
 		for i in range(len(list_of_items)):
-			items_to_merch.append(
-				item(list_of_items[i], list_of_item_limits[i]))
+			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
 		# we are a member so initialise a members item list
 		return(items_to_merch)
 	else:
@@ -259,8 +320,7 @@ def items_to_merch(member_status):
 						 'Rune bar', 'Runite ore', 'Water rune']
 		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
 		for i in range(len(list_of_items)):
-			items_to_merch.append(
-				item(list_of_items[i], list_of_item_limits[i]))
+			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
 		return(items_to_merch)  # we are f2p so initialise a f2p item list
 
 
@@ -290,7 +350,8 @@ def initialise_ge_slots(top_left_corner, bottom_right_corner):
 def members_status_check(top_left_corner, bottom_right_corner):
 	width = bottom_right_corner[0] - top_left_corner[0]
 	height = bottom_right_corner[1] - top_left_corner[1]
-	if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/non_mems_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))) != 0:
+	if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/non_mems_slot.png',
+							 region=(top_left_corner[0], top_left_corner[1], width, height)))) != 0:
 		return(False)
 	else:
 		return(True)
