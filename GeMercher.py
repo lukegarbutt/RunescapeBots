@@ -39,8 +39,16 @@ def main():
 			else:
 				for ge_slot in runescape_window.list_of_ge_slots:
 					if ge_slot.top_left_corner[0]<coords_of_completed_offer[0] and ge_slot.top_left_corner[1]<coords_of_completed_offer[1] and ge_slot.bottom_right_corner[0]>coords_of_completed_offer[0] and ge_slot.bottom_right_corner[1]>coords_of_completed_offer[1]:
-						collect_items_from_ge_slot(ge_slot, runescape_window)
+						collect_items_from_ge_slot(ge_slot, runescape_window) # collects the items from the offer
 						# do stuff based on buy or sell
+						if ge_slot.buy_or_sell == buy:
+							# do buy stuff
+							if time.time() - ge_slot.item.time_of_last_pc > 1800:
+								# grab a new price to sell items at since it has been a long time since we collected this info
+								find_up_to_date_sell_price(runescape_window, ge_slot)
+
+						elif ge_slot.buy_or_sell == sell:
+							# do sell stuff
 
 
 
@@ -66,6 +74,9 @@ class item():
 		self.image_in_ge_search = check_if_image_exists(name)
 		self.price_instant_bought_at = None
 		self.price_instant_sold_at = None
+
+	def set_time_of_last_pc(self):
+		self.time_of_last_pc = time.time()
 
 
 class ge_slot():
@@ -94,8 +105,23 @@ class runescape_instance():
 		self.last_action_time = time.time()
 
 
+def find_up_to_date_sell_price(runescape_window, ge_slot):
+	# click correct buy bag
+	
+	# buy item for lots of money
+
+	# collect item
+
+	# click sale history
+
+	# check price
+
+	# update price
+
+	# click grand exchange window
+
+
 def collect_items_from_ge_slot(ge_slot, runescape_window):
-	print(ge_slot.top_left_corner, ge_slot.bottom_right_corner)
 	point_to_click = pointfrombox.random_point(ge_slot.top_left_corner, ge_slot.bottom_right_corner)
 	realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
 	pyautogui.click()
