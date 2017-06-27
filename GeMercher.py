@@ -16,7 +16,6 @@ load_state = False
 
 
 def main():
-    load_previous_state()
     # maybe we should add a pickle load up here so that we can load in a previous state if we have one?
     # this would mean we can save instances and only have to initialise one if we don't have a save file to load
     # we should also have a variable that tells us whether or not we loaded from a saved instance
@@ -33,7 +32,6 @@ def main():
     elif len(list_of_runescape_windows) == 0:
         print("Failed, we couldn't detect a runescape window, script will now abort")
         quit()
-
     logout_prevention_random_number = random.randint(150, 250)
     while(True):
         for runescape_window in list_of_runescape_windows:
@@ -42,28 +40,48 @@ def main():
                 runescape_window.set_time_of_last_action()
                 prevent_logout(runescape_window.top_left_corner,
                                runescape_window.bottom_right_corner)
-
         # for each window we need to check if there are any completed offers
         # and if so handle them
+        for runescape_window in list_of_runescape_windows:
+            coords_of_completed_offer = pyautogui.locateOnScreen('Tools/screenshots/green_offer_complete_bar.png', region=(runescape_window.top_left_corner[0], runescape_window.top_left_corner[
+                                                                 1], runescape_window.bottom_right_corner[0] - runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[1] - runescape_window.top_left_corner[1]))
+            if coords_of_completed_offer == None:
+                continue
+            else:
+                for ge_slot in runescape_window.list_of_ge_slots:
+                    if ge_slot.top_left_corner[0] < coords_of_completed_offer[0] and ge_slot.top_left_corner[1] < coords_of_completed_offer[1] and ge_slot.bottom_right_corner[0] > coords_of_completed_offer[0] and ge_slot.bottom_right_corner[1] > coords_of_completed_offer[1]:
+                        # collects the items from the offer
+                        collect_items_from_ge_slot(ge_slot, runescape_window)
+                        # do stuff based on buy or sell
+                        if ge_slot.buy_or_sell == buy:
+                            # do buy stuff
+                            if time.time() - ge_slot.item.time_of_last_pc > 1800:
+                                # grab a new price to sell items at since it
+                                # has been a long time since we collected this
+                                # info
+                                find_up_to_date_sell_price(
+                                    runescape_window, ge_slot)
 
+                        elif ge_slot.buy_or_sell == sell:
+                            # do sell stuff
 
-# if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
-# a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our
-# price is right). We would also place the item in the cooldown list as a tuple. this tuple would contain
-# the item name, the time it was bought, the quantity that were bought
-# if the item was sold then we would score the item based on the profit it made us and the time it took to buy and sell
-# then we would simply mark the slot as empty by setting the self.buy_or_sell variable to None and then move on
-# this None would be caught in the next sections of code and a buy order would automatically be placed
-# if there are no completed orders then we need to check for empty ge slots and fill them with orders
-# all orders should be unique, ie not buying coal on 2 windows at once, this would harm profit since they would be
-# competing with eachother. Instead one window should buy it, then once it
-# starts selling the next window can start buying
+                            # if the item was bought then it would simply sell it at the correct price (assuming the order was filled in under
+                            # a certain amount of time), if the item took too long to buy then we would buy another just to confirm that our
+                            # price is right). We would also place the item in the cooldown list as a tuple. this tuple would contain
+                            # the item name, the time it was bought, the quantity that were bought
+                            # if the item was sold then we would score the item based on the profit it made us and the time it took to buy and sell
+                            # then we would simply mark the slot as empty by setting the self.buy_or_sell variable to None and then move on
+                            # this None would be caught in the next sections of code and a buy order would automatically be placed
+                            # if there are no completed orders then we need to
+                            # check for empty ge slots and fill them with
+                            # orders
+    for runescape_window in list_of_runescape_windows:
+        if runescape_window.contains_empty_ge_slot:  # scans until it finds a window with an empty ge slot
 
-    for i in list_of_runescape_windows:  # this little block is purely to get an output and test the code so far
-        for j in i.items_to_merch:  # it should output the items that each instance of runescape can merch, along with limits
-            print(j.item_name, j.limit)
-
-    #print(list_of_runescape_windows[0].items_to_merch[0].item_name, list_of_runescape_windows[0].items_to_merch[0].limit)
+            break
+    # all orders should be unique, ie not buying coal on 2 windows at once, this would harm profit since they would be
+    # competing with eachother. Instead one window should buy it, then once it
+    # starts selling the next window can start buying
 
 
 class item():
@@ -74,6 +92,9 @@ class item():
         self.image_in_ge_search = check_if_image_exists(name)
         self.price_instant_bought_at = None
         self.price_instant_sold_at = None
+
+        def set_time_of_last_pc(self):
+            self.time_of_last_pc = time.time()
 
 
 class ge_slot():
@@ -101,9 +122,64 @@ class runescape_instance():
         examine_money(position)
         self.items_to_merch = items_to_merch(self.member_status)
         self.list_of_items_on_cooldown = []
+        # will be true if there is an empty slot in this window, else false
+        self.contains_empty_ge_slot = empty_ge_slot_check(
+            self.list_of_ge_slots)
 
     def set_time_of_last_action(self):
         self.last_action_time = time.time()
+
+
+def find_up_to_date_sell_price(runescape_window, ge_slot):
+    # click correct buy bag
+
+    # buy item for lots of money
+
+    # collect item
+
+    # click sale history
+
+    # check price
+
+    # update price
+
+    # click grand exchange window
+
+
+def collect_items_from_ge_slot(ge_slot, runescape_window):
+    point_to_click = pointfrombox.random_point(
+        ge_slot.top_left_corner, ge_slot.bottom_right_corner)
+    realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
+    pyautogui.click()
+    wait_for('Tools/screenshots/completed_offer_page.png', runescape_window)
+    point_of_item_collection_box_1 = pointfrombox.random_point((runescape_window.bottom_right_corner[0] - 303, runescape_window.bottom_right_corner[
+                                                               1] - 166), (runescape_window.bottom_right_corner[0] - 273, runescape_window.bottom_right_corner[1] - 138))
+    point_of_item_collection_box_2 = pointfrombox.random_point((runescape_window.bottom_right_corner[0] - 254, runescape_window.bottom_right_corner[
+                                                               1] - 166), (runescape_window.bottom_right_corner[0] - 222, runescape_window.bottom_right_corner[1] - 138))
+    realmouse.move_mouse_to(point_of_item_collection_box_2[
+                            0], point_of_item_collection_box_2[1])
+    pyautogui.click()
+    realmouse.move_mouse_to(point_of_item_collection_box_1[
+                            0], point_of_item_collection_box_1[1])
+    pyautogui.click()
+    wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
+
+
+def wait_for(image, runescape_window):
+    # could add a failsafe in here incase we misclick or something, this
+    # should be something to come back to
+    while(True):
+        found = pyautogui.locateOnScreen(image, region=(runescape_window.top_left_corner[0], runescape_window.top_left_corner[1], runescape_window.bottom_right_corner[
+                                         0] - runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[1] - runescape_window.top_left_corner[1]))
+        if found != None:
+            break
+
+
+def empty_ge_slot_check(list_of_ge_slots):
+    for slot in list_of_ge_slots:
+        if slot.buy_or_sell == None:
+            return(True)
+    return(False)
 
 
 def prevent_logout(top_left_corner, bottom_right_corner):
@@ -269,12 +345,6 @@ def load_previous_state():
     # ask user to create save file
     else:
         print("Save file: '{}' NOT FOUND!\n".format(saved_file))
-
-    width = bottom_right_corner[0] - top_left_corner[0]
-    height = bottom_right_corner[1] - top_left_corner[1]
-    list_of_ge_slots = list(pyautogui.locateAllOnScreen(
-        'Tools/screenshots/available_ge_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
-    return(list_of_ge_slots)
 
 if __name__ == '__main__':
     main()
