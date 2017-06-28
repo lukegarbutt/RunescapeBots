@@ -131,6 +131,11 @@ def main():
 		for runescape_window in list_of_runescape_windows:
 			runescape_window.check_for_empty_ge_slots() # this will update states of ge slots correctly
 			# we can also add other updates into here such as checking items on cooldown, more to add later
+			if len(runescape_window.list_of_items_on_cooldown) > 0:
+				cooldown_tuple = runescape_window.list_of_items_on_cooldown[0]
+				if time.time() - cooldown_tuple[1] > 14400: # then it has been 4 hours so remove from list
+					cooldown_tuple[3].update_number_available_to_buy(item.number_available_to_buy+cooldown_tuple[2])
+					runescape_window.pop_oldest_item_on_cooldown()
 # if there are no completed orders then we need to
 # check for empty ge slots and fill them with
 # orders
@@ -149,20 +154,23 @@ class item():
 		self.price_instant_sold_at = None
 		self.current_state = None # this will track if the item is currently being bought, sold or neither (None)
 
+	def update_number_available_to_buy(self, number):
+		self.number_available_to_buy = number
+
 	def set_time_of_last_pc(self):
-			self.time_of_last_pc = time.time()
+		self.time_of_last_pc = time.time()
 
 	def set_price_instant_bought_at(self, price):
-			self.price_instant_bought_at = price
+		self.price_instant_bought_at = price
 
 	def set_price_instant_sold_at(self, price):
-			self.price_instant_sold_at = price
+		self.price_instant_sold_at = price
 
 	def set_quantity_to_buy(self, number):
-			self.quantity_to_buy = number
+		self.quantity_to_buy = number
 
 	def set_current_state(self, state):
-			self.current_state = state
+		self.current_state = state
 
 
 class ge_slot():
@@ -187,15 +195,17 @@ class runescape_instance():
 		self.top_left_corner = (position[0] - 750, position[1] - 450)
 		self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
 		self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
-		self.money = 500000  # given a default for now, we could change this later maybe
+		self.money = 1000000  # given a default for now, we could change this later maybe
 		self.profit = 0
 		self.last_action_time = time.time()
 		# examines money to make the above line accurate
 		examine_money(position)
 		self.items_to_merch = items_to_merch(self.member_status)
 		self.list_of_items_on_cooldown = []
-		# will be true if there is an empty slot in this window, else false
 		self.number_of_empty_ge_slots = empty_ge_slot_check(self.list_of_ge_slots)
+
+	def pop_oldest_item_on_cooldown(self):
+		self.list_of_items_on_cooldown.pop(0)
 
 	def check_for_empty_ge_slots(self):
 		self.number_of_empty_ge_slots = empty_ge_slot_check(self.list_of_ge_slots)
@@ -204,7 +214,10 @@ class runescape_instance():
 		self.last_action_time = time.time()
 
 	def add_to_items_on_cooldown(self, item):
-		self.list_of_items_on_cooldown.append((item.item_name, time.time(), item.quantity_to_buy))
+		self.list_of_items_on_cooldown.append((item.item_name, time.time(), item.quantity_to_buy, item))
+
+	def add_single_item_to_cooldown(self, item):
+		self.list_of_items_on_cooldown.appen((item.item_name, time.time(), 1, item))
 
 	def update_money(self, number):
 		self.money = number
@@ -340,6 +353,11 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
 		time.sleep(random.random()/7)
 	move_mouse_to_image_within_region('Tools/screenshots/confirm_offer_button.png', runescape_window)
 	pyautogui.click()
+
+	# need to add a way of putting this 1 item bought on cooldown
+	runescape_window.add_single_item_to_cooldown(ge_slot.item)
+	ge_slot.item.update_number_available_to_buy(ge_slot.item.number_available_to_buy-1)
+
 	wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
 	# collect item
 	collect_items_from_ge_slot(ge_slot, runescape_window)
@@ -503,6 +521,8 @@ def items_to_merch(member_status):
 						 'Rune bar', 'Runite ore', 'Water rune', 'Maple logs', 'Yew logs', 'Nature rune', 'Law rune',
 						 'Infernal ashes', 'Airut bones', 'Magic notepaper', 'Cannonball']
 		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
+		for i in range(len(list_of_item_limits)):
+			list_of_item_limits[i] -= 10
 		for i in range(len(list_of_items)):
 			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
 		# we are a member so initialise a members item list
