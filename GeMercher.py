@@ -1,10 +1,10 @@
 # Main script that will merch items in the GE
 
 # TO DO LIST:
-# check the items on cooldown lists so items can be taken off cooldown after the appropriate 4 hours
-# track money more accurately, certain steps aren't tracked yet
-# track profit, per window and total profit from all windows
-# improve pytesser (THIS IS VITAL AND NEEDS DOING ASAP)
+# check the items on cooldown lists so items can be taken off cooldown after the appropriate 4 hours ---------DONE
+# track money more accurately, certain steps aren't tracked yet ---------DONE(I think)
+# track profit, per window and total profit from all windows -----------DONE
+# improve pytesser (THIS IS VITAL AND NEEDS DOING ASAP) --------------DONE
 # add some method of scoring items and saving these scores (probably as part of the item class)
 # things that need saving so far: (list_of_runescape_windows, list_of_items_in_use)
 # probably more things I've missed, I'll add more as I come across them
@@ -49,7 +49,9 @@ def main():
 		quit()
 	logout_prevention_random_number = random.randint(150, 270)
 	list_of_items_in_use = []
+	previous_total_profit = None
 	while(True):
+		total_profit = 0
 		for runescape_window in list_of_runescape_windows:
 			if time.time() - runescape_window.last_action_time > logout_prevention_random_number:  # prevent auto logout
 				logout_prevention_random_number = random.randint(150, 270)
@@ -91,6 +93,9 @@ def main():
 							# sell our items at the price instant bought at
 							sell_items(runescape_window, ge_slot)
 						elif ge_slot.buy_or_sell == 'sell':
+							runescape_window.update_money(runescape_window.money+((ge_slot.item.quantity_to_buy-2)*ge_slot.item.price_instant_bought_at))
+							runescape_window.update_profit((ge_slot.item.quantity_to_buy-2)*(ge_slot.item.price_instant_bought_at-ge_slot.item.price_instant_sold_at))
+							print('Total profit made from this window is {}'.format(runescape_window.profit))
 							# do sell stuff
 							# score the item somehow (skipping this step for now)
 							# also need to track total money and the profit, but again skipping this for now
@@ -127,10 +132,6 @@ def main():
 							break
 				if empty_slot_check == True:
 					break
-
-
-
-
 		for runescape_window in list_of_runescape_windows:
 			runescape_window.check_for_empty_ge_slots() # this will update states of ge slots correctly
 			# we can also add other updates into here such as checking items on cooldown, more to add later
@@ -139,6 +140,11 @@ def main():
 				if time.time() - cooldown_tuple[1] > 14400: # then it has been 4 hours so remove from list
 					cooldown_tuple[3].update_number_available_to_buy(item.number_available_to_buy+cooldown_tuple[2])
 					runescape_window.pop_oldest_item_on_cooldown()
+			total_profit += runescape_window.profit
+		if total_profit != previous_total_profit:
+			previous_total_profit = total_profit
+			print('Total profit made across all windows so far is {}'.format(total_profit))
+
 # if there are no completed orders then we need to
 # check for empty ge slots and fill them with
 # orders
@@ -198,7 +204,7 @@ class runescape_instance():
 		self.top_left_corner = (position[0] - 750, position[1] - 450)
 		self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
 		self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
-		self.money = 1000000  # given a default for now, we could change this later maybe
+		self.money = 19990000  # given a default for now, we could change this later maybe
 		self.profit = 0
 		self.last_action_time = time.time()
 		# examines money to make the above line accurate
@@ -206,6 +212,9 @@ class runescape_instance():
 		self.items_to_merch = items_to_merch(self.member_status)
 		self.list_of_items_on_cooldown = []
 		self.number_of_empty_ge_slots = empty_ge_slot_check(self.list_of_ge_slots)
+
+	def update_profit(self, number):
+		self.profit = self.profit+number
 
 	def pop_oldest_item_on_cooldown(self):
 		self.list_of_items_on_cooldown.pop(0)
@@ -314,6 +323,7 @@ def find_up_to_date_buy_price(runescape_window, ge_slot):
 	for i in range(random.randint(20,35)):
 		pyautogui.click()
 		time.sleep(random.random()/7)
+	time.sleep(random.random()+1)
 	move_mouse_to_image_within_region('Tools/screenshots/confirm_offer_button.png', runescape_window)
 	pyautogui.click()
 	wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
@@ -386,67 +396,29 @@ def random_typer(word):
 		pyautogui.typewrite(i, interval=random.random()/4)
 
 def check_price(runescape_window):
-	loc_of_price = (runescape_window.bottom_right_corner[0] - 144, runescape_window.bottom_right_corner[1] - 364,
-		runescape_window.bottom_right_corner[0] - 22, runescape_window.bottom_right_corner[1] - 337)
+	# 769, 466
+	# 621, 103   744, 128
+	loc_of_price = (runescape_window.bottom_right_corner[0] - 148, runescape_window.bottom_right_corner[1] - 363,
+		runescape_window.bottom_right_corner[0] - 25, runescape_window.bottom_right_corner[1] - 338)
 	price = tesser_image(screengrab_as_numpy_array((loc_of_price[0], loc_of_price[1], loc_of_price[2], loc_of_price[3])))
 	return(price)
 
 def screengrab_as_numpy_array(location):
-    try:
-        im = numpy.array(PIL.ImageGrab.grab(bbox=(location[0],location[1],location[2],location[3])))
-    except:
-        im = numpy.array(pyautogui.screenshot(region=(location[0], location[1], location[2]-location[0], location[3] - location[1])))
-    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    #cv2.imshow('im', im)
-    #cv2.waitKey(0)
+    im = numpy.array(pyautogui.screenshot(region=(location[0], location[1], location[2]-location[0], location[3] - location[1])))
     return(im)
 
 def tesser_image(image):
 	image = cv2.resize(image, (0,0), fx=2, fy=2)
-	ret,image = cv2.threshold(image,127,255,cv2.THRESH_BINARY)
-	#cv2.imshow('im', image)
-	#cv2.waitKey(0)
-	image = PIL.Image.fromarray(image, 'RGB')
-	txt = pytesseract.image_to_string(image)
+	image = PIL.Image.fromarray(image)
+	txt = pytesseract.image_to_string(image, config='-psm 7')
 	txt = txt.replace(",", "")
 	txt = txt.replace(" ", "")
 	txt = txt.replace(".", "")
-	if len(txt) == 0:
-		txt = pytesseract.image_to_string(image, config='-psm 10')
-	try:
-		txt = int(txt)
-	except:
-		txt_list = list(txt)
-		for i in range(len(txt)):
-			if txt_list[i] == 'B':
-				txt_list[i] = '8'
-			elif txt_list[i] == 'l':
-				txt_list[i] = '1'
-			elif txt_list[i] == 'L':
-				txt_list[i] = '1'
-			elif txt_list[i] == 'i':
-				txt_list[i] = '1'
-			elif txt_list[i] == 'I':
-				txt_list[i] = '1'
-			elif txt_list[i] == 'o':
-				txt_list[i] = '0'
-			elif txt_list[i] == 'O':
-				txt_list[i] = '0'
-			elif txt_list[i] == 'z':
-				txt_list[i] = '2'
-			elif txt_list[i] == 'Z':
-				txt_list[i] = '2'
-			elif txt_list[i] == 'Q':
-				txt_list[i] = '0'
-			elif txt_list[i] == 's':
-				txt_list[i] = '5'
-			elif txt_list[i] == 'S':
-				txt_list[i] = '5'
-		if len(txt_list)>1:
-			txt = int(''.join(txt_list))
-		else:
-			txt = int(txt_list[0])
+	txt = int(txt)
 	return(txt)
+
+#print(tesser_image(screengrab_as_numpy_array((621,103,744,128))))
+#quit()
 
 def move_mouse_to_image_within_region(image, region): # region takes in an object
 	image_loc = pyautogui.locateOnScreen(image, region=(region.top_left_corner[0], region.top_left_corner[1], region.bottom_right_corner[0]-region.top_left_corner[0], region.bottom_right_corner[1]-region.top_left_corner[1]))
@@ -526,6 +498,10 @@ def items_to_merch(member_status):
 		list_of_items = ['Coal', 'Air rune', 'Fire rune',
 						 'Rune bar', 'Runite ore', 'Water rune', 'Maple logs', 'Yew logs', 'Nature rune', 'Law rune',
 						 'Infernal ashes', 'Airut bones', 'Magic notepaper', 'Cannonball']
+		#list_of_items = ['Earth rune', 'Nature rune', 'Dragon bones', 'Rune arrow', 'Adamantite ore', 'Gold ore',
+		#				'Chaos rune', 'Bowstring', 'Law rune', 'Gold bar', 'Steel bar', 'Adamant bar', 'Iron ore',
+		#				'Lobster', 'Incandescent energy', 'Broad arrowheads', 'Blood rune', 'Soul rune',
+		#				'Onyx bolts (e)']
 		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
 		for i in range(len(list_of_item_limits)):
 			list_of_item_limits[i] -= 10
@@ -537,7 +513,12 @@ def items_to_merch(member_status):
 		# below is a list of f2p items to merch
 		list_of_items = ['Coal', 'Air rune', 'Fire rune',
 						 'Rune bar', 'Runite ore', 'Water rune', 'Maple logs', 'Yew logs', 'Nature rune', 'Law rune']
+		#list_of_items = ['Earth rune', 'Nature rune', 'Dragon bones', 'Rune arrow', 'Adamantite ore', 'Gold ore',
+		#				'Chaos rune', 'Bowstring', 'Law rune', 'Gold bar', 'Steel bar', 'Adamant bar', 'Iron ore',
+		#				'Lobster']
 		list_of_item_limits = gelimitfinder.find_ge_limit(list_of_items)
+		for i in range(len(list_of_item_limits)):
+			list_of_item_limits[i] -= 10
 		for i in range(len(list_of_items)):
 			items_to_merch.append(item(list_of_items[i], list_of_item_limits[i]))
 		# we are f2p so initialise a f2p item list

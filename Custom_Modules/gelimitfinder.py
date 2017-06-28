@@ -21,6 +21,7 @@ def find_ge_limit(item_names): # pass in item list, return item limits as list
 	item_limits = []
 	wiki_source = pull_item_limit_webpage() # fetches the source code of the wiki page containing item limit information
 	for i in item_names:
+		print(i)
 		item_limits.append(parse_webpage(i, wiki_source)) # for each item parse the webpage and append its limit to item_limits
 	for i in range(len(item_limits)):
 		item_limits[i] = int(item_limits[i].replace(',', '')) # strip the commas out and replace with nothing. Also convert string to int
