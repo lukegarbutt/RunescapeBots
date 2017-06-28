@@ -220,7 +220,7 @@ class runescape_instance():
 		self.list_of_items_on_cooldown.append((item.item_name, time.time(), item.quantity_to_buy, item))
 
 	def add_single_item_to_cooldown(self, item):
-		self.list_of_items_on_cooldown.appen((item.item_name, time.time(), 1, item))
+		self.list_of_items_on_cooldown.append((item.item_name, time.time(), 1, item))
 
 	def update_money(self, number):
 		self.money = number

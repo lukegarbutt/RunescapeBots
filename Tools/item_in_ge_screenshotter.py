@@ -17,14 +17,14 @@ def main():
 	for i in range(len(list_of_items)):
 		list_of_file_names.append(list_of_items[i].replace(' ', '_')+'.png')
 	for i in range(len(list_of_items)):
-		file_name_1 = 'screenshots/items/'+list_of_file_names[i]
+		file_name_1 = 'screenshots/items/legacy_items/'+list_of_file_names[i]
 		file_name_2 = 'screenshots/temp_items/'+list_of_file_names[i]
 		if os.path.isfile(file_name_1):
 			print('file exists', file_name_1)
 			continue
 		x = len(list_of_items[i])
 		pyautogui.typewrite(list_of_items[i], random.random()/10)
-		time.sleep(2)
+		time.sleep(4)
 		pyautogui.screenshot(file_name_2, region=(box_4_coords))
 		for x in range(x):
 			pyautogui.press('backspace')
