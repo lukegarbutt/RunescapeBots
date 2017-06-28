@@ -30,6 +30,9 @@ load_state = False
 
 
 def main():
+	global client_version
+	client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'")
+	client_version = client_version + '_items/'
 	# maybe we should add a pickle load up here so that we can load in a previous state if we have one?
 	# this would mean we can save instances and only have to initialise one if we don't have a save file to load
 	# we should also have a variable that tells us whether or not we loaded from a saved instance
@@ -506,8 +509,8 @@ def move_mouse_to_box(image_of_box, top_left_corner, bottom_right_corner):
 	realmouse.move_mouse_to(box_to_click[0] + random_x, box_to_click[1] + random_y)
 
 def check_if_image_exists(item_name):
-	file_name = 'Tools/screenshots/items/' + \
-		item_name.replace(' ', '_') + '.png'
+	global client_version
+	file_name = 'Tools/screenshots/items/' + client_version + item_name.replace(' ', '_') + '.png'
 	if os.path.isfile(file_name):
 		return(file_name)
 	else:
