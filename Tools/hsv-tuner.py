@@ -253,11 +253,6 @@ class App:
 
         # makes sure method 'show_changes' takes screenshot instead of img file
         self.img_path = 'screenshot'
-        # initializes coords for screenshot
-        x1 = None
-        y1 = None
-        x2 = None
-        y2 = None
         
         # starts a cound down timer of 3 seconds, parallel to the for loop
         screenshot_timer_thread = Thread(target=self.screenshot_timer_lbl_update)
@@ -277,9 +272,15 @@ class App:
                 print("ERROR: {}".format(e))
                 print("{}{} {}{}\n".format(x1,y1,x2,y2))
                 continue
+        # exits if width and height are not greater than 0
+        if x2 - x1 < 1 or y2 - y1 < 1:
+            print("Retake Screenshot")
+            print("Width={} Height={}".format(x2 - x1, y2 - y1))
+            return
         # screenshot taken here with the grabbed coordinates
         try:
             #                                                top-leftpt, w & h   
+            
             screenshoted_image = pyautogui.screenshot(region=(x1,y1,x2-x1,y2-y1))
             screenshoted_image = np.array(screenshoted_image)
         except Exception as e:
