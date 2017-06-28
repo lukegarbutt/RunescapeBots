@@ -31,7 +31,7 @@ load_state = False
 
 def main():
 	global client_version
-	client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'")
+	client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'\n")
 	client_version = client_version + '_items/'
 	# maybe we should add a pickle load up here so that we can load in a previous state if we have one?
 	# this would mean we can save instances and only have to initialise one if we don't have a save file to load
@@ -392,11 +392,14 @@ def check_price(runescape_window):
 	return(price)
 
 def screengrab_as_numpy_array(location):
-	im = numpy.array(PIL.ImageGrab.grab(bbox=(location[0],location[1],location[2],location[3])))
-	im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-	#cv2.imshow('im', im)
-	#cv2.waitKey(0)
-	return(im)
+    try:
+        im = numpy.array(PIL.ImageGrab.grab(bbox=(location[0],location[1],location[2],location[3])))
+    except:
+        im = numpy.array(pyautogui.screenshot(region=(location[0], location[1], location[2]-location[0], location[3] - location[1])))
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    #cv2.imshow('im', im)
+    #cv2.waitKey(0)
+    return(im)
 
 def tesser_image(image):
 	image = cv2.resize(image, (0,0), fx=2, fy=2)
