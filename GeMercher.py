@@ -8,6 +8,8 @@
 # add some method of scoring items and saving these scores (probably as part of the item class)
 # things that need saving so far: (list_of_runescape_windows, list_of_items_in_use)
 # probably more things I've missed, I'll add more as I come across them
+# could add tracking time to it, so it would print out how long it's been running for
+# this could then be used to work out a profit per hour
 
 import pyautogui
 import time
