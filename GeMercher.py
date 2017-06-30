@@ -26,10 +26,10 @@ load_state = False
 def main():
 	global client_version
 	try:
-		list_of_runescape_windows = load_pickle("list_of_runescape_windows.txt")
-		list_of_items_in_use = load_pickle("list_of_items_in_use.txt")
-		client_version = load_pickle("client_version.txt")
-		start_time = load_pickle("start_time.txt")
+		list_of_runescape_windows = pickle.load(open("list_of_runescape_windows.txt", "rb"))
+		list_of_items_in_use = pickle.load(open("list_of_items_in_use.txt", "rb"))
+		client_version = pickle.load(open("client_version.txt", "rb"))
+		start_time = pickle.load(open("start_time.txt", "rb"))
 		print('We have found previous save data so will attempt to pick up where we left off previously')
 		print('If you would not like this then please delete any of the 4 save files and try to run this again')
 		score_items = False # this variable prevents false scores being obtained by tracking when a save is loaded and not letting items be scored straight after a load
@@ -38,9 +38,9 @@ def main():
         client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'\n:")
 		while(client_version != 'nxt' and client_version != 'legacy'):
 			client_version = input("You failed to enter either nxt or legacy correctly, please enter only the characters 'nxt' or 'legacy' all in lower case")	
-        pickle_save(client_version, "client_version.txt")
+        pickle.dump(client_version,(open("client_version.txt", "wb")))
 		start_time = time.time()
-        pickle_save(start_time, "start_time.txt")
+        pickle.dump(start_time,(open("start_time.txt", "wb")))
 		# maybe we should add a pickle load up here so that we can load in a previous state if we have one?
 		# this would mean we can save instances and only have to initialise one if we don't have a save file to load
 		# we should also have a variable that tells us whether or not we loaded from a saved instance
