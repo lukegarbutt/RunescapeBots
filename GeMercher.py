@@ -38,7 +38,6 @@ def main():
 		client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'")
 		while(client_version != 'nxt' and client_version != 'legacy'):
 			client_version = input("You failed to enter either nxt or legacy correctly, please enter only the characters 'nxt' or 'legacy' all in lower case")	
-		client_version = client_version + '_items/'
 		pickle.dump(client_version,(open("client_version.txt", "wb")))
 		start_time = time.time()
 		pickle.dump(start_time,(open("start_time.txt", "wb")))
@@ -295,7 +294,7 @@ class runescape_instance():
 		self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
 		self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
 		self.money = detect_money(self.top_left_corner, self.bottom_right_corner)
-		print('Initialised a window with {}Kgp'.format(self.money/1000))
+		print('Initialised a window with {}Kgp'.format(int(self.money/1000)))
 		self.profit = 0
 		self.last_action_time = time.time()
 		# examines money to make the above line accurate
@@ -496,7 +495,9 @@ def check_price(runescape_window):
 	return(price)
 
 def detect_money(top_left_corner, bottom_right_corner):
-	money_icon_loc = pyautogui.locateOnScreen('Tools/screenshots/money_icon.png', region=(top_left_corner[0], top_left_corner[1], bottom_right_corner[0]-top_left_corner[0], bottom_right_corner[1] - top_left_corner[1]))
+	global client_version
+	money_icon_path = 'Tools/screenshots/money_icon_' + client_version + '.png'
+	money_icon_loc = pyautogui.locateOnScreen(money_icon_path, region=(top_left_corner[0], top_left_corner[1], bottom_right_corner[0]-top_left_corner[0], bottom_right_corner[1] - top_left_corner[1]))
 	money_val_loc = (money_icon_loc[0]+22, money_icon_loc[1], money_icon_loc[0]+100, money_icon_loc[1]+18)
 	image = screengrab_as_numpy_array(money_val_loc)
 	money_val = tesser_money_image(image)
@@ -650,7 +651,7 @@ def move_mouse_to_box(image_of_box, top_left_corner, bottom_right_corner):
 
 def check_if_image_exists(item_name):
 	global client_version
-	file_name = 'Tools/screenshots/items/' + client_version + item_name.replace(' ', '_') + '.png'
+	file_name = 'Tools/screenshots/items/' + client_version + '_items/' + item_name.replace(' ', '_') + '.png'
 	if os.path.isfile(file_name):
 		return(file_name)
 	else:
