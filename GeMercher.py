@@ -743,6 +743,7 @@ def load_pickle(pickle_file):
 			return loaded_pickled_object
 		except:
 			print("{} is N0T a a pickle object!\n".format(pickle_file))
+            return RaiseError
 
 def save_pickle(var_to_save, file_name):
 	with open(file_name, 'wb') as f:
