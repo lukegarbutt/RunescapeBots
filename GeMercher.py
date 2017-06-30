@@ -189,7 +189,11 @@ def main():
 								###########################################################################################################################################################################################################################################################################
 								else:
 									ge_slot.set_item_in_ge_slot(random.choice(list_of_items_available)) # This is the line where I will later be choosing items based on score instead of randomly
-								list_of_items_in_use.append(ge_slot.item.item_name)
+								try:
+									list_of_items_in_use.append(ge_slot.item.item_name)
+								except:
+									ge_slot.set_item_in_ge_slot(random.choice(list_of_items_available))
+									list_of_items_in_use.append(ge_slot.item.item_name)
 								find_up_to_date_sell_price(runescape_window, ge_slot)
 								find_up_to_date_buy_price(runescape_window, ge_slot)
 								if ge_slot.item.price_instant_bought_at - ge_slot.item.price_instant_sold_at > 5:
