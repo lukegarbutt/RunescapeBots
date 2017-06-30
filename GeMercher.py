@@ -26,21 +26,21 @@ load_state = False
 def main():
 	global client_version
 	try:
-		list_of_runescape_windows = pickle.load(open("list_of_runescape_windows.txt", "rb"))
-		list_of_items_in_use = pickle.load(open("list_of_items_in_use.txt", "rb"))
-		client_version = pickle.load(open("client_version.txt", "rb"))
-		start_time = pickle.load(open("start_time.txt", "rb"))
+		list_of_runescape_windows = load_pickle("list_of_runescape_windows.txt")
+		list_of_items_in_use = load_pickle("list_of_items_in_use.txt")
+		client_version = load_pickle("client_version.txt")
+		start_time = load_pickle("start_time.txt")
 		print('We have found previous save data so will attempt to pick up where we left off previously')
 		print('If you would not like this then please delete any of the 4 save files and try to run this again')
 		score_items = False # this variable prevents false scores being obtained by tracking when a save is loaded and not letting items be scored straight after a load
 	except Exception as e:
 		score_items = True
-		client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'")
+        client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'\n:")
 		while(client_version != 'nxt' and client_version != 'legacy'):
 			client_version = input("You failed to enter either nxt or legacy correctly, please enter only the characters 'nxt' or 'legacy' all in lower case")	
-		pickle.dump(client_version,(open("client_version.txt", "wb")))
+        pickle_save(client_version, "client_version.txt")
 		start_time = time.time()
-		pickle.dump(start_time,(open("start_time.txt", "wb")))
+        pickle_save(start_time, "start_time.txt")
 		# maybe we should add a pickle load up here so that we can load in a previous state if we have one?
 		# this would mean we can save instances and only have to initialise one if we don't have a save file to load
 		# we should also have a variable that tells us whether or not we loaded from a saved instance
@@ -743,45 +743,25 @@ def load_pickle(pickle_file):
 	with open(pickle_file, 'rb') as f:
 		try:
 			loaded_pickled_object = pickle.load(f)
-			print("{} LOADED!".format(pickle_file))
+			print("{} LOADED!\n".format(pickle_file))
 			load_state = True
 			return loaded_pickled_object
 		except:
-			print("{} is N0T a a pickle object!".format(pickle_file))
+			print("{} is N0T a a pickle object!\n".format(pickle_file))
 			load_state = False
 
-def save_pickle(var_to_save):
-	save_name = 'save1.pickle'
-	with open('Saves/' + save_name, 'wb') as f:
+def save_pickle(var_to_save, file_name):
+	with open(file_name, 'wb') as f:
 		try:
-			print(var_to_save)
+			print(file_name)
 			pickle.dump(var_to_save, f)
-			print("{} Saved!".format(save_name))
+			print("{} Saved!".format(file_name))
 			load_state = True
 		except Exception as e:
 			print(e)
-			print("{} is N0T a a pickle object!".format(save_name))
+			print("{} is N0T a a pickle object!".format(file_name))
 			load_state = False
 
-def load_previous_state():
-	"""Looks up a pickled file, if found loads it"""
-
-	global loaded_pickled_object, load_state
-
-	save_name = 'save1.pickle'
-	save_dir_name = "Saves/"
-	saved_file = save_dir_name + save_name
-
-	# looks up file names in siaves folder
-	for (dirpath, dirnames, filenames) in os.walk(save_dir_name):
-		break
-	# loads pickled file if exists
-	if save_name in filenames:
-		load_pickle(saved_file)
-
-	# ask user to create save file
-	else:
-		print("Save file: '{}' NOT FOUND!\n".format(saved_file))
 
 if __name__ == '__main__':
 	main()
