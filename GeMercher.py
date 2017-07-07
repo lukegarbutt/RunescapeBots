@@ -19,10 +19,6 @@ from Custom_Modules import pointfrombox
 from Custom_Modules import gelimitfinder
 from Custom_Modules import items_to_merch_module
 
-loaded_pickled_object = None
-load_state = False
-
-
 def main():
 	global client_version
 	try:
@@ -36,6 +32,7 @@ def main():
 	except Exception as e:
 		score_items = True
         client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'\n:")
+        pickle_save(start_time, "start_time.txt")
 		while(client_version != 'nxt' and client_version != 'legacy'):
 			client_version = input("You failed to enter either nxt or legacy correctly, please enter only the characters 'nxt' or 'legacy' all in lower case")	
         pickle.dump(client_version,(open("client_version.txt", "wb")))
@@ -57,7 +54,7 @@ def main():
 			quit()
 		list_of_items_in_use = []
 	try:
-		list_of_item_names_with_scores = pickle.load(open("list_of_item_names_with_scores.txt", "rb"))
+        list_of_item_names_with_scores = pickle_load("list_of_item_names_with_scores.txt")
 	except:
 		list_of_item_names_with_scores = []
 		print("We couldn't find a save file for item scores so items will be picked randomly")
@@ -133,7 +130,7 @@ def main():
 								if len(list_of_item_names_with_scores) == 0:
 									print("The list of scored items is about to have it's first entry added")
 									list_of_item_names_with_scores.append([ge_slot.item.item_name, int(((ge_slot.item.quantity_to_buy*(ge_slot.item.price_instant_bought_at-ge_slot.item.price_instant_sold_at))/(time.time()-ge_slot.item.time_buy_order_placed)))])
-							pickle.dump(list_of_item_names_with_scores,(open("list_of_item_names_with_scores.txt", "wb")))
+                            pickle_save(list_of_item_names_with_socres, "list_of_item_names_with_scores.txt")
 							# if the item was sold then we would score the item based on the profit it made us and the time it took to buy and sell
 							ge_slot.update_buy_or_sell_state(None) # updates the buy or sell state to none to indiate the slot is now empty
 							# still need to update lists of items in use accordingly
@@ -222,8 +219,8 @@ def main():
 			last_saved_list_of_runescape_windows = list_of_runescape_windows
 			last_saved_list_of_items_in_use = list_of_items_in_use
 			time_of_last_save = time.time()
-			pickle.dump(list_of_items_in_use,(open("list_of_items_in_use.txt", "wb")))
-			pickle.dump(list_of_runescape_windows,(open("list_of_runescape_windows.txt", "wb")))
+            pickle_save(list_of_items_in_use, "list_of_items_in_use.txt")
+            pickle_save(list_of_runescape_windows, "list_of_runescape_windows.txt")
 			print('State has now been saved, you may be able to close the script and return from this point later')
 			print('Current scored item list {}'.format(list_of_item_names_with_scores))
 		if total_profit != previous_total_profit:
@@ -738,29 +735,24 @@ def load_pickle(pickle_file):
 	"""Returns binary object from file path passed
 		and sets global variable loaded_pickled_object
 		equal to returned object"""
-	global loaded_pickled_object, load_state
 
 	with open(pickle_file, 'rb') as f:
 		try:
 			loaded_pickled_object = pickle.load(f)
 			print("{} LOADED!\n".format(pickle_file))
-			load_state = True
 			return loaded_pickled_object
 		except:
 			print("{} is N0T a a pickle object!\n".format(pickle_file))
-			load_state = False
+            return RaiseError
 
 def save_pickle(var_to_save, file_name):
 	with open(file_name, 'wb') as f:
 		try:
-			print(file_name)
 			pickle.dump(var_to_save, f)
 			print("{} Saved!".format(file_name))
-			load_state = True
 		except Exception as e:
 			print(e)
 			print("{} is N0T a a pickle object!".format(file_name))
-			load_state = False
 
 
 if __name__ == '__main__':
