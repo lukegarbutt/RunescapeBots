@@ -8,16 +8,19 @@ import operator
 import random
 
 def cap_image(top_left, bottom_right):
-	image = pyautogui.screenshot(region=(top_left[0], top_left[1], bottom_right[0]-top_left[0], bottom_right[1]-top_left[1]))
+	image = numpy.array(pyautogui.screenshot(region=(top_left[0], top_left[1], bottom_right[0]-top_left[0], bottom_right[1]-top_left[1])))
 	return(image)
 
 def tesser(image):
 	txt = pytesseract.image_to_string(image, config='-psm 7')
+	print(txt)
 	return(txt)
 
 def process_image(image):
 	array_image = numpy.array(image)
 	array_image = cv2.resize(array_image, (0,0), fx=2, fy=2)
+	#cv2.imshow('image', array_image)
+	#cv2.waitKey(0)
 	image = PIL.Image.fromarray(array_image)
 	return(image)
 
@@ -31,13 +34,13 @@ def item_score_test():
 		print(txt)
 
 def other_tesser_tests():
-	image = cap_image((599,891), (653,906))
+	image = cap_image((651,632), (684,644))
 	image = process_image(image)
 	txt = tesser(image)
 	print(txt)
 
 def loc_image():
-	print(pyautogui.locateOnScreen('Tools/screenshots/money_icon.png'))
+	print(pyautogui.locateOnScreen('Tools/screenshots/grand_exchange_button.png'))
 
 def list_test():
 	x = [['Coal', 1], ['Iron', 2], ['Dragon Bones', 4], ['Air rune', 3]]
@@ -65,4 +68,61 @@ def list_test():
 	print('Dragon Bones was returned {} times'.format(list_of_returned_items.count('Dragon Bones')))
 	print('Air rune was returned {} times'.format(list_of_returned_items.count('Air rune')))
 
-list_test()
+def numpy_test():
+	array_1 = numpy.array([[1,2,3],[3,2,1]])
+	array_2 = numpy.array([[1,2,3],[3,1,1]])
+	print((array_1==array_2).all())
+
+def tesser_quantity_image(image):
+	image = cv2.resize(image, (0,0), fx=2, fy=2)
+	image = PIL.Image.fromarray(image)
+	txt = pytesseract.image_to_string(image, config='-psm 7')
+	txt = txt.replace(",", "")
+	txt = txt.replace(" ", "")
+	txt = txt.replace(".", "")
+	if len(txt) == 0:
+		txt = pytesseract.image_to_string(image, config='-psm 10')
+	try:
+		txt = int(txt)
+	except:
+		txt_list = list(txt)
+		for i in range(len(txt_list)):
+			if txt_list[i] == 'B':
+				txt_list[i] = '8'
+			elif txt_list[i] == 'l':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'L':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'i':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'I':
+				txt_list[i] = '1'
+			elif txt_list[i] == 'o':
+				txt_list[i] = '0'
+			elif txt_list[i] == 'O':
+				txt_list[i] = '0'
+			elif txt_list[i] == 'z':
+				txt_list[i] = '2'
+			elif txt_list[i] == 'Z':
+				txt_list[i] = '2'
+			elif txt_list[i] == 'Q':
+				txt_list[i] = '0'
+			elif txt_list[i] == 's':
+				txt_list[i] = '5'
+			elif txt_list[i] == 'S':
+				txt_list[i] = '5'
+			elif txt_list[i] == '.':
+				txt_list[i] = '9'
+			elif txt_list[i] == ':':
+				txt_list[i] = '8'
+		if len(txt_list)>1:
+			txt = int(''.join(txt_list))
+		else:
+			txt = int(txt_list[0])
+	return(txt)
+
+#loc_image()
+image = cap_image((931, 320), (1026, 333))
+
+print(tesser_quantity_image(image))
+

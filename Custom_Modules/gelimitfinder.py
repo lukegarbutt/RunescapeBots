@@ -21,10 +21,34 @@ def find_ge_limit(item_names): # pass in item list, return item limits as list
 	item_limits = []
 	wiki_source = pull_item_limit_webpage() # fetches the source code of the wiki page containing item limit information
 	for i in item_names:
-		print(i)
-		item_limits.append(parse_webpage(i, wiki_source)) # for each item parse the webpage and append its limit to item_limits
+		#print(i)
+		if i == 'Aggression potion (4)':
+			item_limits.append('1000')
+		elif i == 'Prayer renewal (4)':
+			item_limits.append('1000')
+		elif i == 'Prayer potion (4)':
+			item_limits.append('1000')
+		elif i == 'Super restore (4)':
+			item_limits.append('1000')
+		elif i == 'Saradomin brew (4)':
+			item_limits.append('1000')
+		else:
+			item_limits.append(parse_webpage(i, wiki_source)) # for each item parse the webpage and append its limit to item_limits
 	for i in range(len(item_limits)):
 		item_limits[i] = int(item_limits[i].replace(',', '')) # strip the commas out and replace with nothing. Also convert string to int
 	return(item_limits)
 
-#item_names = ['Incandescent energy', 'Coal', 'Fire rune', 'Air rune', 'Feather', 'Broad arrowheads', 'Maple logs', 'Water rune', 'Earth rune', 'Nature rune', 'Magic logs', 'Yew logs', 'Brilliant energy', 'Blood rune', 'Mind rune', 'Cannonball', 'Lustrous energy', 'Luminous energy', 'Dragon bones', 'Body rune', 'Mahogany plank', 'Death rune', 'Royal bolts', 'Polypore spore', 'Ascension bolts', 'Fishing bait', 'Rune arrow', 'Chaos rune', 'Bowstring', 'Ascension shard', 'Radiant energy', 'Ganodermic flake', 'Adamantite ore', 'Gold ore', 'Flax', 'Vial of water', 'Vibrant energy', 'Araxyte arrow', 'Mahogany logs', 'Raw shark', 'Shark', 'Soul rune', 'Rocktail', 'Adamant bar', 'Rune bar', 'Gold bar', 'Elder energy', 'Runite ore', 'Law rune', 'Raw lobster', 'Raw rocktail', 'Astral rune', 'Cosmic rune', 'Black dragon leather', 'Onyx bolts (e)', 'Steel bar', 'Magic shieldbow', 'Iron ore', 'Black dragonhide', 'Grenwall spikes', 'Mithril bar', 'Willow logs', 'Mud rune', 'Lobster', 'Swamp tar', 'Mithril ore', 'Adamant arrow', 'Snape grass', 'Soft clay', 'Magic notepaper', 'Steel arrow', 'Magic shieldbow (u)', 'Harralander tar', 'Mithril arrow', 'Teak plank', 'Thread', 'Oak plank', 'Dark arrow', 'Grimy dwarf weed', 'Dragon arrowheads', 'Grimy lantadyme', 'Airut bones', 'Gleaming energy', 'Infernal ashes', 'Frost dragon bones', 'Living minerals', 'Chitin scraps', 'Green dragon leather', 'Red chinchompa', 'Rune arrowheads', 'Eye of newt', 'Clean lantadyme', 'Rune essence', 'Raw tuna']
+'''item_names = ['Incandescent energy', 'Coal', 'Fire rune', 'Air rune', 'Feather', 'Broad arrowheads', 'Maple logs', 'Water rune', 'Earth rune', 'Nature rune',
+	'Yew logs', 'Brilliant energy', 'Blood rune', 'Mind rune', 'Cannonball', 'Lustrous energy', 'Luminous energy', 'Dragon bones', 'Body rune', 'Mahogany plank',
+	'Death rune', 'Royal bolts', 'Ascension bolts', 'Fishing bait', 'Rune arrow', 'Chaos rune', 'Bowstring', 'Ascension shard', 'Radiant energy',
+	'Ganodermic flake', 'Adamantite ore', 'Gold ore', 'Flax', 'Vial of water', 'Vibrant energy', 'Araxyte arrow', 'Mahogany logs', 'Raw shark', 'Shark', 'Soul rune',
+	'Rocktail', 'Adamant bar', 'Rune bar', 'Gold bar', 'Elder energy', 'Runite ore', 'Law rune', 'Raw lobster', 'Raw rocktail', 'Astral rune', 'Cosmic rune',
+	'Black dragon leather', 'Onyx bolts (e)', 'Steel bar', 'Magic shieldbow', 'Iron ore', 'Black dragonhide', 'Grenwall spikes', 'Mithril bar', 'Willow logs', 'Mud rune',
+	'Lobster', 'Swamp tar', 'Mithril ore', 'Adamant arrow', 'Snape grass', 'Soft clay', 'Magic notepaper', 'Steel arrow', 'Magic shieldbow (u)', 'Harralander tar',
+	'Mithril arrow', 'Teak plank', 'Thread', 'Oak plank', 'Dark arrow', 'Grimy dwarf weed', 'Dragon arrowheads', 'Grimy lantadyme', 'Airut bones', 'Gleaming energy',
+	'Infernal ashes', 'Frost dragon bones', 'Living minerals', 'Chitin scraps', 'Green dragon leather', 'Red chinchompa', 'Rune arrowheads', 'Clean lantadyme', 'Rune essence', 'Raw tuna',
+	'Hydrix bolt tips', 'Yew seed', 'Palm tree seed', 'Teleport to house', 'Wine of Zamorak', 'Potion flask', 'Prayer potion (4)', 'Super restore (4)', 'Saradomin brew (4)',
+	'Aggression potion (4)', 'Prayer renewal (4)']
+
+print(item_names)
+print(find_ge_limit(item_names))'''
