@@ -11,3 +11,5 @@ Installation instructions for gemercher:
 'pip install pytesseract'
 'pip install pyautogui'
 4. run the file 'gemercher.py'
+
+You can see a full demo of this over at https://youtu.be/XO3fEBViM2A
