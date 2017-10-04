@@ -38,6 +38,8 @@ def find_ge_limit(item_names): # pass in item list, return item limits as list
 		item_limits[i] = int(item_limits[i].replace(',', '')) # strip the commas out and replace with nothing. Also convert string to int
 	return(item_limits)
 
+# print(find_ge_limit(['Feather']))
+
 '''item_names = ['Incandescent energy', 'Coal', 'Fire rune', 'Air rune', 'Feather', 'Broad arrowheads', 'Maple logs', 'Water rune', 'Earth rune', 'Nature rune',
 	'Yew logs', 'Brilliant energy', 'Blood rune', 'Mind rune', 'Cannonball', 'Lustrous energy', 'Luminous energy', 'Dragon bones', 'Body rune', 'Mahogany plank',
 	'Death rune', 'Royal bolts', 'Ascension bolts', 'Fishing bait', 'Rune arrow', 'Chaos rune', 'Bowstring', 'Ascension shard', 'Radiant energy',
