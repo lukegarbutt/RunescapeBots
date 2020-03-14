@@ -119,7 +119,8 @@ def main():
 				logout_prevention_random_number = random.randint(150, 200)
 				runescape_window.set_time_of_last_action()
 				prevent_logout(runescape_window.top_left_corner, runescape_window.bottom_right_corner, runescape_window)
-				wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
+
+				wait_for('Tools/screenshots/select_an_offer_slot.png', runescape_window)
 		# for each window we need to check if there are any completed offers
 		# and if so handle them
 		completed_offer_check = False # variable to see if there was a completed offer
@@ -1058,12 +1059,16 @@ def prevent_logout(top_left_corner, bottom_right_corner, runescape_window):
     if seed > 0.5:  # opens up the sale history tab for 5 seconds then returns to ge tab
         while (True):
             realmouse.move_mouse_to(random.randint(0, x), random.randint(0, y))
-            if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/sale_history_button.png', region=(
+			# we will never break out of this loop if this image is not found
+			# TODO: Move these screenshot calls to variables
+            if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/sales_history_button.png', region=(
                     top_left_corner[0], top_left_corner[1], bottom_right_corner[0] - top_left_corner[0],
                     bottom_right_corner[1] - top_left_corner[1])))) > 0:
-                move_mouse_to_box('Tools/screenshots/sale_history_button.png', top_left_corner, bottom_right_corner)
+				# we will never break out of this loop if this is not found
+                move_mouse_to_box('Tools/screenshots/sales_history_button.png', top_left_corner, bottom_right_corner)
                 pyautogui.click()
                 time.sleep(9 * random.random() + 1)
+
                 move_mouse_to_box('Tools/screenshots/grand_exchange_button.png', top_left_corner, bottom_right_corner)
                 pyautogui.click()
                 break
