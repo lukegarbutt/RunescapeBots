@@ -18,6 +18,7 @@ def parse_webpage(item_name, wiki_source):
 	return(limit)
 
 def find_ge_limit(item_names): # pass in item list, return item limits as list
+	# TODO: This can probably be replaced with the rsbuddy json
 	item_limits = []
 	wiki_source = pull_item_limit_webpage() # fetches the source code of the wiki page containing item limit information
 	for i in item_names:

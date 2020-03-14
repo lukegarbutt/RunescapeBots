@@ -9,13 +9,16 @@ import cv2
 import numpy
 import random
 import PIL
-import pygame
+# import pygame
 
 # below are custom modules
-from Custom_Modules import realmouse
-from Custom_Modules import pointfrombox
-from Custom_Modules import gelimitfinder
-from Custom_Modules import items_to_merch_module
+from RunescapeBots.Custom_Modules import realmouse
+from RunescapeBots.Custom_Modules import pointfrombox
+from RunescapeBots.Custom_Modules import gelimitfinder
+from RunescapeBots.Custom_Modules import items_to_merch_module
+from RunescapeBots.utilities.utils import wait_for, members_status_check, \
+	move_mouse_to_image_within_region, random_typer, move_mouse_to_box
+
 
 def main():
 	#pygame.init()
@@ -51,8 +54,9 @@ def main():
 	except Exception as e:
 		print(e)
 		score_items = True
-		client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'\n:")
-		time.sleep(5)
+		# client_version = input("Which version of the runescape client are you using? (please answer either 'nxt' or 'legacy'\n:")
+		client_version = 'legacy'
+		# time.sleep(5)
 		while(client_version != 'nxt' and client_version != 'legacy'):
 			client_version = input("You failed to enter either nxt or legacy correctly, please enter only the characters 'nxt' or 'legacy' all in lower case")	
 		with (open("client_version.txt", "wb")) as openfile:
@@ -114,8 +118,9 @@ def main():
 			if time.time() - runescape_window.last_action_time > logout_prevention_random_number:  # prevent auto logout
 				logout_prevention_random_number = random.randint(150, 200)
 				runescape_window.set_time_of_last_action()
-				prevent_logout(runescape_window.top_left_corner,runescape_window.bottom_right_corner, runescape_window)
-				wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
+				prevent_logout(runescape_window.top_left_corner, runescape_window.bottom_right_corner, runescape_window)
+
+				wait_for('Tools/screenshots/select_an_offer_slot.png', runescape_window)
 		# for each window we need to check if there are any completed offers
 		# and if so handle them
 		completed_offer_check = False # variable to see if there was a completed offer
@@ -123,14 +128,15 @@ def main():
 									# and cycle back through to check again untill there is no completed offers
 									# to handle, and we can continue filling ge slots, this gives completed offers
 									# 100% priority, hopefully increasing performance
+
 		for runescape_window in list_of_runescape_windows:
-			coords_of_completed_offer = pyautogui.locateOnScreen('Tools/screenshots/green_offer_complete_bar.png', region=(runescape_window.top_left_corner[0], runescape_window.top_left_corner[
-																 1], runescape_window.bottom_right_corner[0] - runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[1] - runescape_window.top_left_corner[1]))
+			coords_of_completed_offer = pyautogui.locateOnScreen('Tools/screenshots/green_offer_complete_bar.png')
 			if coords_of_completed_offer == None:
 				continue
 			else:
 				completed_offer_check = True
 				for ge_slot in runescape_window.list_of_ge_slots:
+					# TODO: Figure out what the fuck this is doing
 					if ge_slot.top_left_corner[0] < coords_of_completed_offer[0] and ge_slot.top_left_corner[1] < coords_of_completed_offer[1] and ge_slot.bottom_right_corner[0] > coords_of_completed_offer[0] and ge_slot.bottom_right_corner[1] > coords_of_completed_offer[1]:
 						# collects the items from the offer
 						collect_items_from_ge_slot(ge_slot, runescape_window)
@@ -453,8 +459,13 @@ class runescape_instance():
 
 	def __init__(self, position):
 		self.bottom_right_corner = position
+		# TODO: These numbers should not be hard coded and are broken
 		self.top_left_corner = (position[0] - 750, position[1] - 450)
-		self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
+		# Checks to see if player has members
+		# TODO: Change this for OSRS. I am commenting it out and setting it to True for now
+		# self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
+		self.member_status = True
+		# TODO: The positions are broken and I disabled them in the init GE function
 		self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
 		#self.money = detect_money(self.top_left_corner, self.bottom_right_corner) TESSER NEEDS FIXING
 		if self.member_status:
@@ -464,7 +475,8 @@ class runescape_instance():
 		self.profit = 0
 		self.last_action_time = time.time()
 		# examines money to make the above line accurate
-		examine_money(position)
+		# TODO: Change this to a simple left click or somthing According to authoer this is here just to make sure game doesn log out. Commented out just for testing
+		# examine_money(position)
 		self.items_to_merch = items_to_merch(self.member_status)
 		self.list_of_items_on_cooldown = []
 		self.number_of_empty_ge_slots = empty_ge_slot_check(self.list_of_ge_slots)
@@ -497,7 +509,7 @@ class runescape_instance():
 	def update_money(self, number):
 		self.money = number
 
-
+# Merch related function
 def check_for_in_progress_or_view_offer(ge_slot):
 	while(True):
 		if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/in_progress.png', region=(ge_slot.top_left_corner[0], ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[0]-ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[1]-ge_slot.top_left_corner[1])))) > 0:
@@ -508,7 +520,7 @@ def check_for_in_progress_or_view_offer(ge_slot):
 			print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
 		else:
 			break
-
+# Merch related function
 def handle_cancelling_sell(runescape_window, ge_slot, list_of_items_in_use):
 	# click box 2
 	box_2_loc = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-254, runescape_window.bottom_right_corner[1]-165), (runescape_window.bottom_right_corner[0]-224, runescape_window.bottom_right_corner[1]-139))
@@ -529,6 +541,7 @@ def handle_cancelling_sell(runescape_window, ge_slot, list_of_items_in_use):
 	sell_items(runescape_window, ge_slot)
 	# item didnt buy any of so we can just mark this slot as open and start again
 
+#  Merch related function
 def handle_cancelling_buy(runescape_window, ge_slot, list_of_items_in_use):
 	# click box 1
 	box_1_loc = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-303, runescape_window.bottom_right_corner[1]-164), (runescape_window.bottom_right_corner[0]-273, runescape_window.bottom_right_corner[1]-139))
@@ -559,6 +572,7 @@ def handle_cancelling_buy(runescape_window, ge_slot, list_of_items_in_use):
 	ge_slot.item.set_price_instant_sold_at(None)
 	ge_slot.set_item_in_ge_slot(None)
 
+#  Merch related function
 def cancel_offer(top_left_corner, bottom_right_corner, runescape_window):
 	loc_of_ge_point = pointfrombox.random_point(top_left_corner, bottom_right_corner)
 	realmouse.move_mouse_to(loc_of_ge_point[0], loc_of_ge_point[1])
@@ -586,6 +600,7 @@ def cancel_offer(top_left_corner, bottom_right_corner, runescape_window):
 	realmouse.move_mouse_to(point_of_cancel_button[0], point_of_cancel_button[1])
 	pyautogui.click()
 
+# Merch related function
 def buy_item(runescape_window, ge_slot):
 	# click the correct buy bag
 	move_mouse_to_image_within_region('Tools/screenshots/buy_bag.png', ge_slot)
@@ -633,6 +648,7 @@ def buy_item(runescape_window, ge_slot):
 	time.sleep(2+random.random())
 	ge_slot.set_image_of_slot()
 
+# Merch related function
 def sell_items(runescape_window, ge_slot, record_number_selling=False):
 	# click correct sell bag
 	move_mouse_to_image_within_region('Tools/screenshots/sell_bag.png', ge_slot)
@@ -677,6 +693,7 @@ def sell_items(runescape_window, ge_slot, record_number_selling=False):
 	time.sleep(2+random.random())
 	ge_slot.set_image_of_slot()
 
+# Merch related function
 def find_up_to_date_buy_price(runescape_window, ge_slot):
 	# click correct sell bag
 	move_mouse_to_image_within_region('Tools/screenshots/sell_bag.png', ge_slot)
@@ -723,6 +740,7 @@ def find_up_to_date_buy_price(runescape_window, ge_slot):
 	runescape_window.set_time_of_last_action()
 	print('{} instantly sold for a price of {}'.format(ge_slot.item.item_name, ge_slot.item.price_instant_sold_at))
 
+# Merch related function
 def find_up_to_date_sell_price(runescape_window, ge_slot):
 	# click correct buy bag
 	move_mouse_to_image_within_region('Tools/screenshots/buy_bag.png', ge_slot)
@@ -779,16 +797,14 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
 	ge_slot.item.set_time_of_last_pc()
 	print('{} instantly bought for a price of {}'.format(ge_slot.item.item_name, ge_slot.item.price_instant_bought_at))
 
-def random_typer(word):
-	for i in word:
-		pyautogui.typewrite(i, interval=random.random()/4)
-
+# Merch related function
 def check_price(runescape_window):
 	loc_of_price = (runescape_window.bottom_right_corner[0] - 148, runescape_window.bottom_right_corner[1] - 363,
 		runescape_window.bottom_right_corner[0] - 25, runescape_window.bottom_right_corner[1] - 338)
 	price = tesser_price_image(screengrab_as_numpy_array((loc_of_price[0], loc_of_price[1], loc_of_price[2], loc_of_price[3])))
 	return(price)
 
+# Merch related function
 def detect_money(top_left_corner, bottom_right_corner):
 	global client_version
 	money_icon_path = 'Tools/screenshots/money_icon_' + client_version + '.png'
@@ -798,6 +814,7 @@ def detect_money(top_left_corner, bottom_right_corner):
 	money_val = tesser_money_image(image)
 	return(money_val)
 
+# Merch related function
 def tesser_money_image(image):
 	image = cv2.resize(image, (0,0), fx=2, fy=2)
 	image = PIL.Image.fromarray(image)
@@ -831,6 +848,7 @@ def tesser_money_image(image):
 	txt = int(''.join(txt_list))
 	return(txt)
 
+# Merch related function
 def tesser_quantity_image(image):
 	image = cv2.resize(image, (0,0), fx=2, fy=2)
 	image = PIL.Image.fromarray(image)
@@ -879,10 +897,12 @@ def tesser_quantity_image(image):
 			txt = int(txt_list[0])
 	return(txt)
 
+# TODO: Not sure what this does yet
 def screengrab_as_numpy_array(location):
 	im = numpy.array(pyautogui.screenshot(region=(location[0], location[1], location[2]-location[0], location[3] - location[1])))
 	return(im)
 
+# Merch related function
 def tesser_price_image(image):
 	image = cv2.resize(image, (0,0), fx=2, fy=2)
 	image = PIL.Image.fromarray(image)
@@ -931,13 +951,7 @@ def tesser_price_image(image):
 			txt = int(txt_list[0])
 	return(txt)
 
-def move_mouse_to_image_within_region(image, region): # region takes in an object
-	image_loc = pyautogui.locateOnScreen(image, region=(region.top_left_corner[0], region.top_left_corner[1], region.bottom_right_corner[0]-region.top_left_corner[0], region.bottom_right_corner[1]-region.top_left_corner[1]))
-	while(image_loc == None):
-		image_loc = pyautogui.locateOnScreen(image, region=(region.top_left_corner[0], region.top_left_corner[1], region.bottom_right_corner[0]-region.top_left_corner[0], region.bottom_right_corner[1]-region.top_left_corner[1]))
-	point_to_click = pointfrombox.random_point((image_loc[0], image_loc[1]), (image_loc[0]+image_loc[2], image_loc[1]+image_loc[3]))
-	realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
-
+# Merch related function
 def collect_items_from_ge_slot(ge_slot, runescape_window):
 	point_to_click = pointfrombox.random_point(ge_slot.top_left_corner, ge_slot.bottom_right_corner)
 	realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
@@ -953,30 +967,7 @@ def collect_items_from_ge_slot(ge_slot, runescape_window):
 	pyautogui.click()
 	wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
 
-def wait_for(image, runescape_window):
-	# adding a possible failsafe in here
-	time_entered = time.time()
-	# could add a failsafe in here incase we misclick or something, this
-	# should be something to come back to
-	failsafe_count = 0
-	while(True):
-		found = pyautogui.locateOnScreen(image, region=(runescape_window.top_left_corner[0], runescape_window.top_left_corner[1], runescape_window.bottom_right_corner[
-										 0] - runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[1] - runescape_window.top_left_corner[1]))
-		if found != None:
-			break
-		elif failsafe_count > 10:
-			print("We can't seem to fix the problem so the script is now aborting")
-			quit()
-		elif time.time()-time_entered > 5 :
-			failsafe_count += 1
-			print('We appear to be stuck so attempting to move the mouse and see if this fixes it')
-			#print('For debug:')
-			#print(runescape_window.bottom_right_corner[0], runescape_window.top_left_corner[0])
-			#print(runescape_window.bottom_right_corner[1], runescape_window.top_left_corner[1])
-			realmouse.move_mouse_to(random.randint(runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[0]), random.randint(runescape_window.top_left_corner[1], runescape_window.bottom_right_corner[1]))
-			#pyautogui.click()
-			time_entered = time.time()
-
+# Merch related function
 def empty_ge_slot_check(list_of_ge_slots):
 	number_of_ge_slots_open = 0
 	for slot in list_of_ge_slots:
@@ -984,30 +975,7 @@ def empty_ge_slot_check(list_of_ge_slots):
 			number_of_ge_slots_open += 1
 	return(number_of_ge_slots_open)
 
-def prevent_logout(top_left_corner, bottom_right_corner, runescape_window):
-	seed = random.random()
-	x, y = pyautogui.size()
-	if seed > 0.5:  # opens up the sale history tab for 5 seconds then returns to ge tab
-		while(True):
-			realmouse.move_mouse_to(random.randint(0,x), random.randint(0,y))
-			if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/sale_history_button.png', region=(top_left_corner[0], top_left_corner[1], bottom_right_corner[0]-top_left_corner[0], bottom_right_corner[1]-top_left_corner[1]))))>0:
-				move_mouse_to_box('Tools/screenshots/sale_history_button.png', top_left_corner, bottom_right_corner)
-				pyautogui.click()
-				time.sleep(9*random.random()+1)
-				move_mouse_to_box('Tools/screenshots/grand_exchange_button.png', top_left_corner, bottom_right_corner)
-				pyautogui.click()
-				break
-	else:  # examines the money pouch
-		examine_money(bottom_right_corner)
-
-# pass in an image and a search region
-def move_mouse_to_box(image_of_box, top_left_corner, bottom_right_corner):
-	box_to_click = pyautogui.locateOnScreen(image_of_box, region=(top_left_corner[0], top_left_corner[
-											1], bottom_right_corner[0] - top_left_corner[0], bottom_right_corner[1] - top_left_corner[1]))
-	random_x = random.randint(0, box_to_click[2])
-	random_y = random.randint(0, box_to_click[3])
-	realmouse.move_mouse_to(box_to_click[0] + random_x, box_to_click[1] + random_y)
-
+# This should be a more generalized function
 def check_if_image_exists(item_name):
 	global client_version
 	file_name = 'Tools/screenshots/items/' + client_version + '_items/' + item_name.replace(' ', '_') + '.png'
@@ -1016,6 +984,7 @@ def check_if_image_exists(item_name):
 	else:
 		print('You do not have an image file for {} so the script is aborting, to fix this issue either take a screenshot of {} or remove it from the list of items to merch'.format(item_name, item_name))
 
+# Merch related function
 def items_to_merch(member_status):
 	if member_status:
 		items_to_merch = []
@@ -1039,6 +1008,7 @@ def items_to_merch(member_status):
 		# we are f2p so initialise a f2p item list
 	return(items_to_merch)
 
+# Merch related function
 def examine_money(position):
 	# this whole block just examines the amount of money
 	point = pointfrombox.random_point((138, 94), (189, 109))
@@ -1054,40 +1024,56 @@ def examine_money(position):
 	realmouse.move_mouse_to(examine[0], examine[1])
 	pyautogui.click()
 
+# Merch related function
 def initialise_ge_slots(top_left_corner, bottom_right_corner):
 	ge_slots = []
 	for i in count_ge_slots(top_left_corner, bottom_right_corner):
 		ge_slots.append(ge_slot(((i[0], i[1]), (i[0] + i[2], i[1] + i[3]))))
 	return(ge_slots)
 
-def members_status_check(top_left_corner, bottom_right_corner):
-	width = bottom_right_corner[0] - top_left_corner[0]
-	height = bottom_right_corner[1] - top_left_corner[1]
-	if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/non_mems_slot.png',
-							 region=(top_left_corner[0], top_left_corner[1], width, height)))) != 0:
-		return(False)
-	else:
-		return(True)
 
 def detect_runescape_windows():  # this function will detect how many runescape windows are present and where they are
 	list_of_runescape_windows = []
-	for i in pyautogui.locateAllOnScreen('Tools/screenshots/collect_all_buttons.png'):
+	for i in pyautogui.locateAllOnScreen('Tools/screenshots/GEstart.png'):
 		list_of_runescape_windows.append(
 			runescape_instance((i[0] + i[2], i[1] + i[3])))
 	return(list_of_runescape_windows)
 
-def move_and_resize_runescape_windows():
-	pass  # this will move and resize the detected windows.
-	# Initially this will just pass since we don't know how to do this, but
-	# further down the road we can add to this and implement it
 
 # this checks how many slots a particular window has available
 def count_ge_slots(top_left_corner, bottom_right_corner):
 	width = bottom_right_corner[0] - top_left_corner[0]
 	height = bottom_right_corner[1] - top_left_corner[1]
+	# Commenting out the region arg for testing
+	# list_of_ge_slots = list(pyautogui.locateAllOnScreen(
+	# 	'Tools/screenshots/available_ge_slot_osrs.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
+	# Why is this only finding 4 slots?
 	list_of_ge_slots = list(pyautogui.locateAllOnScreen(
-		'Tools/screenshots/available_ge_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
+		'Tools/screenshots/ge_open_slot.png'))
 	return(list_of_ge_slots)
+
+
+def prevent_logout(top_left_corner, bottom_right_corner, runescape_window):
+    seed = random.random()
+    x, y = pyautogui.size()
+    if seed > 0.5:  # opens up the sale history tab for 5 seconds then returns to ge tab
+        while (True):
+            realmouse.move_mouse_to(random.randint(0, x), random.randint(0, y))
+			# we will never break out of this loop if this image is not found
+			# TODO: Move these screenshot calls to variables
+            if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/sales_history_button.png', region=(
+                    top_left_corner[0], top_left_corner[1], bottom_right_corner[0] - top_left_corner[0],
+                    bottom_right_corner[1] - top_left_corner[1])))) > 0:
+				# we will never break out of this loop if this is not found
+                move_mouse_to_box('Tools/screenshots/sales_history_button.png', top_left_corner, bottom_right_corner)
+                pyautogui.click()
+                time.sleep(9 * random.random() + 1)
+
+                move_mouse_to_box('Tools/screenshots/grand_exchange_button.png', top_left_corner, bottom_right_corner)
+                pyautogui.click()
+                break
+    else:  # examines the money pouch
+        examine_money(bottom_right_corner)
 
 if __name__ == '__main__':
 	main()
