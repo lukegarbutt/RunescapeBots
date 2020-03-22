@@ -9,6 +9,7 @@ import cv2
 import numpy
 import random
 import PIL
+import re
 # import pygame
 
 # below are custom modules
@@ -469,6 +470,7 @@ class runescape_instance():
         self.member_status = True
         # TODO: The positions are broken and I disabled them in the init GE function
         self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
+        # TODO: Fix the money detection
         #self.money = detect_money(self.top_left_corner, self.bottom_right_corner) TESSER NEEDS FIXING
         if self.member_status:
             self.money = 47_000_000
@@ -774,7 +776,7 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
     move_mouse_to_image_within_region('Tools/screenshots/price_box.png', runescape_window)
     pyautogui.click()
     time.sleep(2+random.random())
-    # TODO: This is not a responsible number. Pull from market JSON and buy a 2x price
+    # TODO: Pull from market JSON and buy a 2x price
     random_typer('1000')
     pyautogui.press('enter')#########################################################################################################
     time.sleep(random.random()+1)
@@ -797,8 +799,8 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
     # updating the amount of money in the window
     runescape_window.update_money(runescape_window.money-buy_price)
     # click grand exchange window
-    move_mouse_to_box('Tools/screenshots/grand_exchange_button.png',
-                        runescape_window.top_left_corner, runescape_window.bottom_right_corner)
+    # move_mouse_to_box('Tools/screenshots/grand_exchange_button.png',
+    #                     runescape_window.top_left_corner, runescape_window.bottom_right_corner)
     pyautogui.click()
     wait_for('Tools/screenshots/select_an_offer_slot.png', runescape_window)
     runescape_window.set_time_of_last_action()
@@ -906,8 +908,13 @@ def tesser_quantity_image(image):
             txt = int(txt_list[0])
     return(txt)
 
-# TODO: Not sure what this does yet
+# Converts a screenshot/image into a numpy array
 def screengrab_as_numpy_array(location):
+    """
+    Takes a screenshot at provided location and returns screenshot as a numpy array
+    :param location: x,y location points of bottom left and top right corners of an area on screen
+    :return: numpy.array
+    """
     im = numpy.array(pyautogui.screenshot(region=(location[0], location[1], location[2]-location[0], location[3] - location[1])))
     return(im)
 
@@ -920,50 +927,55 @@ def tesser_price_image(image):
     # image = cv2.medianBlur(image, 9)
 
     image = PIL.Image.fromarray(image)
-    txt = pytesseract.image_to_string(image, lang='eng', config='--psm 6, tessedit_char_whitelist=0123456789')
+    txt = pytesseract.image_to_string(image, lang='eng', config='--psm 6')
     txt = txt.replace(",", "")
-    txt = txt.replace(" ", "")
-    txt = txt.replace(".", "")
-    if len(txt) == 0:
-        txt = pytesseract.image_to_string(image, config='-psm 10')
+    txt = re.findall(r'\d+', txt)
     try:
-        txt = int(txt)
+        price = int(txt[1])/int(txt[0])
     except:
-        txt_list = list(txt)
-        for i in range(len(txt_list)):
-            if txt_list[i] == 'B':
-                txt_list[i] = '8'
-            elif txt_list[i] == 'l':
-                txt_list[i] = '1'
-            elif txt_list[i] == 'L':
-                txt_list[i] = '1'
-            elif txt_list[i] == 'i':
-                txt_list[i] = '1'
-            elif txt_list[i] == 'I':
-                txt_list[i] = '1'
-            elif txt_list[i] == 'o':
-                txt_list[i] = '0'
-            elif txt_list[i] == 'O':
-                txt_list[i] = '0'
-            elif txt_list[i] == 'z':
-                txt_list[i] = '2'
-            elif txt_list[i] == 'Z':
-                txt_list[i] = '2'
-            elif txt_list[i] == 'Q':
-                txt_list[i] = '0'
-            elif txt_list[i] == 's':
-                txt_list[i] = '5'
-            elif txt_list[i] == 'S':
-                txt_list[i] = '5'
-            elif txt_list[i] == '.':
-                txt_list[i] = '9'
-            elif txt_list[i] == ':':
-                txt_list[i] = '8'
-        if len(txt_list)>1:
-            txt = int(''.join(txt_list))
-        else:
-            txt = int(txt_list[0])
-    return(txt)
+        print('Problem with tesser_price_image ocr occured. Price could not be found')
+    # # txt = txt.replace(" ", "")
+    # # txt = txt.replace(".", "")
+    # if len(txt) == 0:
+    #     txt = pytesseract.image_to_string(image, config='--psm 10')
+    # try:
+    #     txt = int(txt)
+    # except:
+    #     txt_list = list(txt)
+    #     for i in range(len(txt_list)):
+    #         if txt_list[i] == 'B':
+    #             txt_list[i] = '8'
+    #         elif txt_list[i] == 'l':
+    #             txt_list[i] = '1'
+    #         elif txt_list[i] == 'L':
+    #             txt_list[i] = '1'
+    #         elif txt_list[i] == 'i':
+    #             txt_list[i] = '1'
+    #         elif txt_list[i] == 'I':
+    #             txt_list[i] = '1'
+    #         elif txt_list[i] == 'o':
+    #             txt_list[i] = '0'
+    #         elif txt_list[i] == 'O':
+    #             txt_list[i] = '0'
+    #         elif txt_list[i] == 'z':
+    #             txt_list[i] = '2'
+    #         elif txt_list[i] == 'Z':
+    #             txt_list[i] = '2'
+    #         elif txt_list[i] == 'Q':
+    #             txt_list[i] = '0'
+    #         elif txt_list[i] == 's':
+    #             txt_list[i] = '5'
+    #         elif txt_list[i] == 'S':
+    #             txt_list[i] = '5'
+    #         elif txt_list[i] == '.':
+    #             txt_list[i] = '9'
+    #         elif txt_list[i] == ':':
+    #             txt_list[i] = '8'
+    #     if len(txt_list)>1:
+    #         txt = int(''.join(txt_list))
+    #     else:
+    #         txt = int(txt_list[0])
+    return int(price)
 
 # Merch related function
 def collect_items_from_ge_slot(ge_slot, runescape_window):
@@ -1105,8 +1117,8 @@ def prevent_logout(top_left_corner, bottom_right_corner, runescape_window):
 
 
 if __name__ == '__main__':
-    # main()
-    from PIL import Image
-    image = Image.open('/home/eric/PycharmProjects/GEMerch/RunescapeBots/Tools/screenshots/tessertest.png')
-    im = numpy.array(image)
-    tesser_price_image(im)
+    main()
+    # from PIL import Image
+    # image = Image.open('/home/eric/PycharmProjects/GEMerch/RunescapeBots/Tools/screenshots/tessertest.png')
+    # im = numpy.array(image)
+    # tesser_price_image(im)
