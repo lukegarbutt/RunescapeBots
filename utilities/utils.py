@@ -30,8 +30,8 @@ from RunescapeBots.Custom_Modules import realmouse
 
 # Types a word at a random speed for each letter
 def random_typer(word):
-    for i in word:
-        pyautogui.typewrite(i, interval=random.random() / 4)
+    for letter in word:
+        pyautogui.typewrite(letter.lower(), interval=random.random() / 4)
 
 
 # module to return a random point from a box
@@ -39,8 +39,8 @@ def random_typer(word):
 def random_point(top_left, bottom_right):
     x = random.randint(top_left[0], bottom_right[0])
     y = random.randint(top_left[1], bottom_right[1])
-    point = (x, y)
-    return (point)
+
+    return x, y
 
 
 # Locates an image on screen and moves the mouse to a random point within that image
