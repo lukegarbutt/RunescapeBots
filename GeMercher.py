@@ -21,8 +21,10 @@ from RunescapeBots.Custom_Modules import items_to_merch_module
 from RunescapeBots.utilities.utils import wait_for, members_status_check, \
     move_mouse_to_image_within_region, random_typer, move_mouse_to_box
 
+buy_bag = 'Tools/screenshots/buy_bag.png'
 sell_bag = 'Tools/screenshots/sell_bag.png'
 sell_offer = 'Tools/screenshots/sell_what.png'
+buy_prompt = 'Tools/screenshots/buy_what.png'
 
 
 def main():
@@ -276,7 +278,7 @@ def main():
                                 wait_for('Tools/screenshots/buy_bag.png', ge_slot)
                                 find_up_to_date_sell_price(runescape_window, ge_slot)
                                 # TODO: Change this screenshot
-                                wait_for('Tools/screenshots/sell_bag.png', ge_slot)
+                                wait_for(sell_bag, ge_slot)
                                 find_up_to_date_buy_price(runescape_window, ge_slot)
                                 if ge_slot.item.price_instant_bought_at < ge_slot.item.price_instant_sold_at:
                                     temp = ge_slot.item.price_instant_bought_at
@@ -439,33 +441,6 @@ class item():
     def set_current_state(self, state):
         self.current_state = state
 
-
-class ge_slot():
-
-    def __init__(self, position):
-        self.top_left_corner = position[0]
-        self.bottom_right_corner = position[1]
-        self.buy_or_sell = None
-        self.item = None
-
-    def update_buy_or_sell_state(self, state):
-        self.buy_or_sell = state
-
-    def set_item_in_ge_slot(self, item):
-        self.item = item
-
-    def set_time_of_last_screenshot(self):
-        self.time_of_last_screenshot = time.time()
-
-    def set_image_of_slot(self):
-        self.image_of_slot = numpy.array(pyautogui.screenshot(region=(self.top_left_corner[0], self.top_left_corner[1] + 90, 165, 10)))
-        self.set_time_of_last_screenshot()
-        print('Image of {} has been updated'.format(self.item.item_name))
-
-    def location(self):
-        return self.top_left_corner, self.bottom_right_corner
-
-
 class runescape_instance():
 
     def __init__(self, position):
@@ -477,7 +452,7 @@ class runescape_instance():
         # self.member_status = members_status_check(self.top_left_corner, self.bottom_right_corner)
         self.member_status = True
         # TODO: The positions are broken and I disabled them in the init GE function
-        self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner)  # this returns a list of ge_slot objects
+        self.list_of_ge_slots = initialise_ge_slots(self.top_left_corner, self.bottom_right_corner, self)  # this returns a list of ge_slot objects
         # TODO: Fix the money detection
         #self.money = detect_money(self.top_left_corner, self.bottom_right_corner) TESSER NEEDS FIXING
         if self.member_status:
@@ -544,7 +519,33 @@ class runescape_instance():
         pyautogui.click()
 
 
+class ge_slot():
 
+    def __init__(self, position, runescape_instance):
+        self.top_left_corner = position[0]
+        self.bottom_right_corner = position[1]
+        self.buy_or_sell = None
+        self.item = None
+        # TODO: not sure if this will work
+        self.runescape_instance = runescape_instance
+
+
+    def update_buy_or_sell_state(self, state):
+        self.buy_or_sell = state
+
+    def set_item_in_ge_slot(self, item):
+        self.item = item
+
+    def set_time_of_last_screenshot(self):
+        self.time_of_last_screenshot = time.time()
+
+    def set_image_of_slot(self):
+        self.image_of_slot = numpy.array(pyautogui.screenshot(region=(self.top_left_corner[0], self.top_left_corner[1] + 90, 165, 10)))
+        self.set_time_of_last_screenshot()
+        print('Image of {} has been updated'.format(self.item.item_name))
+
+    def location(self):
+        return self.top_left_corner, self.bottom_right_corner
 
 # Merch related function
 def check_for_in_progress_or_view_offer(ge_slot):
@@ -640,14 +641,14 @@ def cancel_offer(top_left_corner, bottom_right_corner, runescape_window):
 # Merch related function
 def buy_item(runescape_window, ge_slot):
     # click the correct buy bag
-    move_mouse_to_image_within_region('Tools/screenshots/buy_bag.png', ge_slot)
+    move_mouse_to_image_within_region(ge_slot.buy_bag)
     pyautogui.click()
-    wait_for('Tools/screenshots/buy_what.png', runescape_window)
+    wait_for(runescape_window.buy_prompt)
     random_typer(str(ge_slot.item.item_name))
     wait_for(ge_slot.item.image_in_ge_search, runescape_window)
 
     # click item
-    move_mouse_to_image_within_region(ge_slot.item.image_in_ge_search, runescape_window)
+    move_mouse_to_image_within_region(ge_slot.item.image_in_ge_search)
     pyautogui.click()
     # click price box
     coords_of_price_box = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-384, runescape_window.bottom_right_corner[1]-272),
@@ -686,7 +687,7 @@ def buy_item(runescape_window, ge_slot):
 # Merch related function
 def sell_items(runescape_window, ge_slot, record_number_selling=False):
     # click correct sell bag
-    move_mouse_to_image_within_region('Tools/screenshots/sell_bag.png', ge_slot)
+    move_mouse_to_image_within_region(sell_bag)
     pyautogui.click()
     wait_for('Tools/screenshots/quantity_box.png', runescape_window)
     # click item in inv
@@ -762,11 +763,12 @@ def find_up_to_date_buy_price(runescape_window, ge_slot):
     print('{} instantly sold for a price of {}'.format(ge_slot.item.item_name, ge_slot.item.price_instant_sold_at))
 
 # Merch related function
+# TODO: strip the runescape_windows out of here and reference ge_slot.runescape_instance
 def find_up_to_date_sell_price(runescape_window, ge_slot):
     # click correct buy bag
-    move_mouse_to_image_within_region('Tools/screenshots/buy_bag.png', ge_slot)
+    move_mouse_to_image_within_region(buy_bag, runescape_window)
     pyautogui.click()
-    wait_for('Tools/screenshots/buy_what.png', runescape_window)
+    wait_for(buy_prompt, runescape_window)
     time.sleep(1+random.random())
     random_typer(str(ge_slot.item.item_name))
     wait_for(ge_slot.item.image_in_ge_search, runescape_window)
@@ -1032,7 +1034,7 @@ def empty_ge_slot_check(list_of_ge_slots):
     for slot in list_of_ge_slots:
         if slot.buy_or_sell == None:
             number_of_ge_slots_open += 1
-    return(number_of_ge_slots_open)
+    return number_of_ge_slots_open
 
 # This should be a more generalized function
 # This should continue and take a screenshot for items that don't have one
@@ -1087,11 +1089,11 @@ def examine_money(position):
     # pyautogui.click()
 
 # Merch related function
-def initialise_ge_slots(top_left_corner, bottom_right_corner):
+def initialise_ge_slots(top_left_corner, bottom_right_corner, runescape_instance):
     ge_slots = []
     for i in count_ge_slots(top_left_corner, bottom_right_corner):
-        ge_slots.append(ge_slot(((i[0], i[1]), (i[0] + i[2], i[1] + i[3]))))
-    return(ge_slots)
+        ge_slots.append(ge_slot(((i[0], i[1]), (i[0] + i[2], i[1] + i[3])), runescape_instance))
+    return ge_slots
 
 
 def detect_runescape_windows():  # this function will detect how many runescape windows are present and where they are
@@ -1110,9 +1112,7 @@ def count_ge_slots(top_left_corner, bottom_right_corner):
     # Commenting out the region arg for testing
     list_of_ge_slots = list(pyautogui.locateAllOnScreen(
     	'Tools/screenshots/ge_open_slot.png', region=(top_left_corner[0], top_left_corner[1], width, height)))
-    # Why is this only finding 4 slots?
-    # list_of_ge_slots = list(pyautogui.locateAllOnScreen(
-    #     'Tools/screenshots/ge_open_slot.png'))
+
     return list_of_ge_slots
 
 
