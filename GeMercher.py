@@ -14,12 +14,15 @@ import matplotlib.pyplot as plt
 # import pygame
 
 # below are custom modules
-from RunescapeBots.Custom_Modules import realmouse
+from RunescapeBots.Custom_Modules.realmouse import move_to
 from RunescapeBots.Custom_Modules import pointfrombox
 from RunescapeBots.Custom_Modules import gelimitfinder
 from RunescapeBots.Custom_Modules import items_to_merch_module
 from RunescapeBots.utilities.utils import wait_for, members_status_check, \
     move_mouse_to_image_within_region, random_typer, move_mouse_to_box
+
+sell_bag = 'Tools/screenshots/sell_bag.png'
+sell_offer = 'Tools/screenshots/sell_what.png'
 
 
 def main():
@@ -437,11 +440,6 @@ class item():
         self.current_state = state
 
 
-def confirm_offer(runescape_window):
-    move_mouse_to_image_within_region('Tools/screenshots/confirm_offer_button.png', runescape_window)
-    pyautogui.click()
-
-
 class ge_slot():
 
     def __init__(self, position):
@@ -463,6 +461,9 @@ class ge_slot():
         self.image_of_slot = numpy.array(pyautogui.screenshot(region=(self.top_left_corner[0], self.top_left_corner[1] + 90, 165, 10)))
         self.set_time_of_last_screenshot()
         print('Image of {} has been updated'.format(self.item.item_name))
+
+    def location(self):
+        return self.top_left_corner, self.bottom_right_corner
 
 
 class runescape_instance():
@@ -506,6 +507,8 @@ class runescape_instance():
                                      (self.bottom_right_corner[0] - 71, self.bottom_right_corner[1] - 21)
         self.loc_collection_box_item = (self.bottom_right_corner[0] - 55, self.bottom_right_corner[1] - 51),\
                                        (self.bottom_right_corner[0] - 20, self.bottom_right_corner[1] - 21)
+        self.loc_price = (self.bottom_right_corner[0] - 396, self.bottom_right_corner[1] - 61), \
+                         (self.bottom_right_corner[0] - 179, self.bottom_right_corner[1] - 28)
 
     def update_profit(self, number):
         self.profit = self.profit+number
@@ -529,23 +532,28 @@ class runescape_instance():
         self.money = number
 
     def collect_1(self):
-        loc = pointfrombox.random_point(*self.loc_collection_box_gp)
-        realmouse.move_mouse_to(loc)
-        pyautogui.click()
+        top_left, bottom_right = pointfrombox.random_point(*self.loc_collection_box_gp)
+        return top_left, bottom_right
 
     def collect_2(self):
-        loc = pointfrombox.random_point(self.loc_collection_box_item)
-        realmouse.move_mouse_to(loc)
+        top_left, bottom_right = pointfrombox.random_point(*self.loc_collection_box_item)
+        return top_left, bottom_right
+
+    def confirm_offer(self):
+        move_mouse_to_image_within_region('Tools/screenshots/confirm_offer_button.png', self)
         pyautogui.click()
+
+
+
 
 # Merch related function
 def check_for_in_progress_or_view_offer(ge_slot):
     while(True):
         if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/in_progress.png', region=(ge_slot.top_left_corner[0], ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[0]-ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[1]-ge_slot.top_left_corner[1])))) > 0:
-            realmouse.move_mouse_to(random.randint(ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[0]), random.randint(ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[1]))
+            move_to(random.randint(ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[0]), random.randint(ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[1]))
             print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
         elif len(list(pyautogui.locateAllOnScreen('Tools/screenshots/view_offer.png', region=(ge_slot.top_left_corner[0], ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[0]-ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[1]-ge_slot.top_left_corner[1])))) > 0:
-            realmouse.move_mouse_to(random.randint(ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[0]), random.randint(ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[1]))
+            move_to(random.randint(ge_slot.top_left_corner[0], ge_slot.bottom_right_corner[0]), random.randint(ge_slot.top_left_corner[1], ge_slot.bottom_right_corner[1]))
             print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
         else:
             break
@@ -553,12 +561,12 @@ def check_for_in_progress_or_view_offer(ge_slot):
 def handle_cancelling_sell(runescape_window, ge_slot, list_of_items_in_use):
     # click box 2
     box_2_loc = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-254, runescape_window.bottom_right_corner[1]-165), (runescape_window.bottom_right_corner[0]-224, runescape_window.bottom_right_corner[1]-139))
-    realmouse.move_mouse_to(box_2_loc[0], box_2_loc[1])
+    move_to(box_2_loc[0], box_2_loc[1])
     pyautogui.click()
     # runescape_window.update_money(runescape_window.money+((ge_slot.item.quantity_to_buy-2)*ge_slot.item.price_instant_sold_at)) think this line is breaking it
     # click collect box 1
     box_1_loc = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-303, runescape_window.bottom_right_corner[1]-164), (runescape_window.bottom_right_corner[0]-273, runescape_window.bottom_right_corner[1]-139))
-    realmouse.move_mouse_to(box_1_loc[0], box_1_loc[1])
+    move_to(box_1_loc[0], box_1_loc[1])
     pyautogui.click()
     # if not then click box 2 and proceed to sell the item
     wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
@@ -574,7 +582,7 @@ def handle_cancelling_sell(runescape_window, ge_slot, list_of_items_in_use):
 def handle_cancelling_buy(runescape_window, ge_slot, list_of_items_in_use):
     # click box 1
     box_1_loc = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-303, runescape_window.bottom_right_corner[1]-164), (runescape_window.bottom_right_corner[0]-273, runescape_window.bottom_right_corner[1]-139))
-    realmouse.move_mouse_to(box_1_loc[0], box_1_loc[1])
+    move_to(box_1_loc[0], box_1_loc[1])
     pyautogui.click()
     # runescape_window.update_money(runescape_window.money+((ge_slot.item.quantity_to_buy-2)*ge_slot.item.price_instant_sold_at)) think this line is breaking it
     # wait and check if we have jumped back to the main window, handle this
@@ -582,7 +590,7 @@ def handle_cancelling_buy(runescape_window, ge_slot, list_of_items_in_use):
     if not len(list(pyautogui.locateAllOnScreen('Tools/screenshots/lent_item_box.png', region=(runescape_window.top_left_corner[0], runescape_window.top_left_corner[1], runescape_window.bottom_right_corner[0]-runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[1]-runescape_window.top_left_corner[1])))) > 0:
         # we have to click box 2 still so click it and handle it
         box_2_loc = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-254, runescape_window.bottom_right_corner[1]-165), (runescape_window.bottom_right_corner[0]-224, runescape_window.bottom_right_corner[1]-139))
-        realmouse.move_mouse_to(box_2_loc[0], box_2_loc[1])
+        move_to(box_2_loc[0], box_2_loc[1])
         pyautogui.click()
         # if not then click box 2 and proceed to sell the item
         wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
@@ -604,7 +612,7 @@ def handle_cancelling_buy(runescape_window, ge_slot, list_of_items_in_use):
 #  Merch related function
 def cancel_offer(top_left_corner, bottom_right_corner, runescape_window):
     loc_of_ge_point = pointfrombox.random_point(top_left_corner, bottom_right_corner)
-    realmouse.move_mouse_to(loc_of_ge_point[0], loc_of_ge_point[1])
+    move_to(loc_of_ge_point[0], loc_of_ge_point[1])
     pyautogui.click()
     # print('now waiting and then trying to locate x button')
     # wait_for('Tools/screenshots/abort_x_button.png', runescape_window)
@@ -626,7 +634,7 @@ def cancel_offer(top_left_corner, bottom_right_corner, runescape_window):
     # print('we have saved the location of the x button ready to click')
     # print(cancel_loc)
     point_of_cancel_button = pointfrombox.random_point((cancel_loc[0], cancel_loc[1]), (cancel_loc[0]+cancel_loc[2], cancel_loc[1]+cancel_loc[3]))
-    realmouse.move_mouse_to(point_of_cancel_button[0], point_of_cancel_button[1])
+    move_to(point_of_cancel_button[0], point_of_cancel_button[1])
     pyautogui.click()
 
 # Merch related function
@@ -635,19 +643,16 @@ def buy_item(runescape_window, ge_slot):
     move_mouse_to_image_within_region('Tools/screenshots/buy_bag.png', ge_slot)
     pyautogui.click()
     wait_for('Tools/screenshots/buy_what.png', runescape_window)
-    # click search box
-    # move_mouse_to_image_within_region('Tools/screenshots/search_box.png', runescape_window)
-    # pyautogui.click()
-    # type in item
     random_typer(str(ge_slot.item.item_name))
     wait_for(ge_slot.item.image_in_ge_search, runescape_window)
+
     # click item
     move_mouse_to_image_within_region(ge_slot.item.image_in_ge_search, runescape_window)
     pyautogui.click()
     # click price box
     coords_of_price_box = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-384, runescape_window.bottom_right_corner[1]-272),
         (runescape_window.bottom_right_corner[0]-291, runescape_window.bottom_right_corner[1]-259))
-    realmouse.move_mouse_to(coords_of_price_box[0], coords_of_price_box[1])
+    move_to(coords_of_price_box[0], coords_of_price_box[1])
     pyautogui.click()
     time.sleep(random.random()+1)
     # type in correct price and hit enter
@@ -666,7 +671,7 @@ def buy_item(runescape_window, ge_slot):
     time.sleep(random.random())
     pyautogui.press('enter')
     # click confirm off
-    move_mouse_to_image_within_region("Tools/screenshots/confirm_offer_button.png", runescape_window)
+    runescape_window.confirm_offer()
     pyautogui.click()
     ge_slot.item.set_time_item_buy_was_placed()
     wait_for('Tools/screenshots/lent_item_box.png', runescape_window)
@@ -686,7 +691,7 @@ def sell_items(runescape_window, ge_slot, record_number_selling=False):
     wait_for('Tools/screenshots/quantity_box.png', runescape_window)
     # click item in inv
     coords_of_item = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-180, runescape_window.bottom_right_corner[1]-372), (runescape_window.bottom_right_corner[0]-166, runescape_window.bottom_right_corner[1]-349))
-    realmouse.move_mouse_to(coords_of_item[0], coords_of_item[1])
+    move_to(coords_of_item[0], coords_of_item[1])
     pyautogui.click()
     # click all button incase
     move_mouse_to_image_within_region("Tools/screenshots/all_button.png", runescape_window)
@@ -706,14 +711,14 @@ def sell_items(runescape_window, ge_slot, record_number_selling=False):
             ge_slot.item.set_score_invalid()
     # click price button
     coords_of_price_box = pointfrombox.random_point((runescape_window.bottom_right_corner[0]-384, runescape_window.bottom_right_corner[1]-272), (runescape_window.bottom_right_corner[0]-291, runescape_window.bottom_right_corner[1]-259))
-    realmouse.move_mouse_to(coords_of_price_box[0], coords_of_price_box[1])
+    move_to(coords_of_price_box[0], coords_of_price_box[1])
     pyautogui.click()
     time.sleep(2+random.random())
     # type price in and hit enter
     random_typer(str(ge_slot.item.price_instant_bought_at))
     pyautogui.press('enter')
     # click confirm
-    move_mouse_to_image_within_region("Tools/screenshots/confirm_offer_button.png", runescape_window)
+    runescape_window.confirm_offer()
     pyautogui.click()
     # update state of ge slot
     ge_slot.update_buy_or_sell_state('sell')
@@ -726,16 +731,16 @@ def sell_items(runescape_window, ge_slot, record_number_selling=False):
 # Merch related function
 def find_up_to_date_buy_price(runescape_window, ge_slot):
     # click correct sell bag
-    move_mouse_to_image_within_region('Tools/screenshots/sell_bag.png', ge_slot)
+    move_mouse_to_image_within_region(sell_bag)
     pyautogui.click()
-    wait_for('Tools/screenshots/sell_what.png', runescape_window)
+    wait_for(sell_offer, runescape_window)
 
     # sell item for cheap
-    coords_of_item = pointfrombox.random_point(runescape_window.loc_inventory_item)
-    realmouse.move_mouse_to(coords_of_item[0], coords_of_item[1])
+    coords_of_item = pointfrombox.random_point(*runescape_window.loc_inventory_item)
+    move_to(coords_of_item[0], coords_of_item[1])
     pyautogui.click()
 
-    confirm_offer(runescape_window)
+    runescape_window.confirm_offer()
     move_mouse_to_image_within_region('Tools/screenshots/price_box.png', runescape_window)
     pyautogui.click()
     time.sleep(2+random.random())
@@ -744,7 +749,7 @@ def find_up_to_date_buy_price(runescape_window, ge_slot):
 
     time.sleep(random.random()+1)
     # Confirm offer and wait for main GE screen
-    ge_slot.confirm_offer(runescape_window)
+    runescape_window.confirm_offer()
     wait_for('Tools/screenshots/select_an_offer_slot.png', runescape_window)
 
     sell_price = collect_items_from_ge_slot(ge_slot, runescape_window, 'sell')
@@ -762,11 +767,6 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
     move_mouse_to_image_within_region('Tools/screenshots/buy_bag.png', ge_slot)
     pyautogui.click()
     wait_for('Tools/screenshots/buy_what.png', runescape_window)
-    # OSRS does not need the next two lines
-    # buy item for lots of money
-    # move_mouse_to_image_within_region('Tools/screenshots/search_box.png', runescape_window)
-    # pyautogui.click()
-
     time.sleep(1+random.random())
     random_typer(str(ge_slot.item.item_name))
     wait_for(ge_slot.item.image_in_ge_search, runescape_window)
@@ -793,7 +793,7 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
     random_typer('1000')
     pyautogui.press('enter')#########################################################################################################
     time.sleep(random.random()+1)
-    move_mouse_to_image_within_region('Tools/screenshots/confirm_offer_button.png', runescape_window)
+    runescape_window.confirm_offer()
     pyautogui.click()
     # need to add a way of putting this 1 item bought on cooldown
     runescape_window.add_single_item_to_cooldown(ge_slot.item)
@@ -821,11 +821,13 @@ def find_up_to_date_sell_price(runescape_window, ge_slot):
     print('{} instantly bought for a price of {}'.format(ge_slot.item.item_name, ge_slot.item.price_instant_bought_at))
 
 # Merch related function
-def check_price(runescape_window):
-    # TODO Make these coords relative to the completed offer bar
-    loc_of_price = (runescape_window.bottom_right_corner[0] - 396, runescape_window.bottom_right_corner[1] - 61,
-        runescape_window.bottom_right_corner[0] - 179, runescape_window.bottom_right_corner[1] - 28)
-    price = tesser_price_image(screengrab_as_numpy_array((loc_of_price[0], loc_of_price[1], loc_of_price[2], loc_of_price[3])))
+def check_price(location):
+    """
+    A function that reads a price from the screen via Tesseract OCR
+    :param location: X, Y coords of the upper right and lower left hand corners of the area to be read
+    :return: int
+    """
+    price = tesser_price_image(screengrab_as_numpy_array(location))
     return price
 
 # Merch related function
@@ -928,8 +930,11 @@ def screengrab_as_numpy_array(location):
     :param location: x,y location points of bottom left and top right corners of an area on screen
     :return: numpy.array
     """
-    im = numpy.array(pyautogui.screenshot(region=(location[0], location[1], location[2]-location[0], location[3] - location[1])))
-    return(im)
+    top_left, bottom_right = location
+    width = top_left[0] - top_left[1]
+    height = bottom_right[1] - top_left[1]
+    im = numpy.array(pyautogui.screenshot(region=(top_left[0], top_left[1], width, height)))
+    return im
 
 # Merch related function
 def tesser_price_image(image):
@@ -944,6 +949,7 @@ def tesser_price_image(image):
     # Show image
     # plt.imshow(image, cmap='gray')
     # Convert image to string
+    # TODO: Has trouble with 4 vs 9, why is it retuning | and | after new lines?
     txt = pytesseract.image_to_string(image, lang='eng', config='--psm 6')
     txt = txt.replace(",", "")
     txt = re.findall(r'\d+', txt)
@@ -998,22 +1004,24 @@ def tesser_price_image(image):
 def collect_items_from_ge_slot(ge_slot, runescape_window, action):
 
     # Open specific GE slot
-    loc_ge_slot = pointfrombox.random_point(ge_slot.top_left_corner, ge_slot.bottom_right_corner)
-    realmouse.move_mouse_to(loc_ge_slot[0], loc_ge_slot[1])
+    loc_ge_slot = pointfrombox.random_point(*ge_slot.location())
+    move_to(loc_ge_slot[0], loc_ge_slot[1])
     pyautogui.click()
 
     wait_for('Tools/screenshots/completed_offer_page.png', runescape_window)
 
-    # Record the buy or sell price of the items
-    price = check_price(runescape_window)
+    # Check the buy or sell price of the items
+    price = check_price(runescape_window.loc_price)
     # TODO: Need to handle cases when we don't know whether we'll need to collect both items and gold
     # TODO: Click these in a random or almost random order?
     # Collect the gold
-    runescape_window.collect_1()
+    move_to(*runescape_window.collect_1())
+    pyautogui.click()
 
     # Collect the item
     if action == 'buy':
-        runescape_window.collect_2()
+        move_to(*runescape_window.collect_2())
+        pyautogui.click()
 
     wait_for('Tools/screenshots/select_an_offer_slot.png', runescape_window)
 
@@ -1115,7 +1123,7 @@ def prevent_logout(top_left_corner, bottom_right_corner, runescape_window):
     x, y = pyautogui.size()
     if seed > 0.5:  # opens up the sale history tab for 5 seconds then returns to ge tab
         while (True):
-            realmouse.move_mouse_to(random.randint(0, x), random.randint(0, y))
+            move_to(random.randint(0, x), random.randint(0, y))
             # we will never break out of this loop if this image is not found
             # TODO: Move these screenshot calls to variables
             if len(list(pyautogui.locateAllOnScreen('Tools/screenshots/sales_history_button.png', region=(

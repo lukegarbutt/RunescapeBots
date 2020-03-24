@@ -9,7 +9,7 @@ import time
 # mouseSpeed = 20
 
 
-def move_mouse_to(x, y):
+def move_to(x, y):
 	"""Function to simulate realistic mouse movements in python. The objective of this
 	 will be to take in coordinates x,y and move them in a realistic manner. We
 	 will be passing in an x,y,  that is already 'random' so this function will

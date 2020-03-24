@@ -4,7 +4,7 @@ import random
 
 import pyautogui
 
-from RunescapeBots.Custom_Modules import realmouse
+from RunescapeBots.Custom_Modules.realmouse import move_to
 
 # from RunescapeBots.GeMercher import examine_money, runescape_instance
 
@@ -54,7 +54,7 @@ def move_mouse_to_image_within_region(image, region):  # region takes in an obje
     point_to_click = random_point((image_loc[0], image_loc[1]),
                                   (image_loc[0] + image_loc[2], image_loc[1] + image_loc[3]))
 
-    realmouse.move_mouse_to(point_to_click[0], point_to_click[1])
+    move_to(point_to_click[0], point_to_click[1])
 
 
 # pass in an image and a search region
@@ -63,7 +63,7 @@ def move_mouse_to_box(image_of_box, top_left_corner, bottom_right_corner):
     box_to_click = pyautogui.locateOnScreen(image_of_box)
     random_x = random.randint(0, box_to_click[2])
     random_y = random.randint(0, box_to_click[3])
-    realmouse.move_mouse_to(box_to_click[0] + random_x, box_to_click[1] + random_y)
+    move_to(box_to_click[0] + random_x, box_to_click[1] + random_y)
 
 
 # Waits for pyautogui to find an image onscreen, moves the mouse if the image can't be found
@@ -90,7 +90,7 @@ def wait_for(image, runescape_window):
             # print('For debug:')
             # print(runescape_window.bottom_right_corner[0], runescape_window.top_left_corner[0])
             # print(runescape_window.bottom_right_corner[1], runescape_window.top_left_corner[1])
-            realmouse.move_mouse_to(
+            move_to(
                 random.randint(runescape_window.top_left_corner[0], runescape_window.bottom_right_corner[0]),
                 random.randint(runescape_window.top_left_corner[1], runescape_window.bottom_right_corner[1]))
             # pyautogui.click()
